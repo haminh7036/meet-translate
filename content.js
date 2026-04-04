@@ -12,7 +12,7 @@ console.log('[Meet Translate] Content script loaded!');
     const RETRY_INTERVAL_MS = 3000;
     const POLL_INTERVAL_MS = 500;
     const STABLE_DEBOUNCE_MS = 3000;
-    const MIN_SENTENCES = 5;
+    const SILENCE_TIMEOUT_MS = 10000;
     const MAX_HISTORY = 500;
     const blockState = new Map();
     let panelContainer = null;
@@ -26,6 +26,9 @@ console.log('[Meet Translate] Content script loaded!');
     let sentenceHistory = null;
     const processedSentencesInMemory = new Set();
     const translationItems = [];
+    let activeSpeaker = null;
+    let lastCaptionTime = 0;
+    let silenceTimer = null;
 
     function getAriaLabel() {
         const htmlLang = document.documentElement.lang || 'en';
@@ -98,6 +101,23 @@ console.log('[Meet Translate] Content script loaded!');
         return parts.map((p) => p.trim()).filter((p) => p.length > 0);
     }
 
+    async function clearSentenceHistory() {
+        if (!sentenceHistory || sentenceHistory === 'memory') {
+            processedSentencesInMemory.clear();
+            return;
+        }
+        return new Promise((resolve) => {
+            const tx = sentenceHistory.transaction('sentences', 'readwrite');
+            const store = tx.objectStore('sentences');
+            store.clear();
+            tx.oncomplete = () => {
+                console.log('[Meet Translate] Sentence history cleared');
+                resolve();
+            };
+            tx.onerror = () => resolve();
+        });
+    }
+
     async function initSentenceHistory() {
         try {
             const request = indexedDB.open('MeetTranslateDB', 1);
@@ -107,9 +127,10 @@ console.log('[Meet Translate] Content script loaded!');
                     db.createObjectStore('sentences', { keyPath: 'text' });
                 }
             };
-            request.onsuccess = (event) => {
+            request.onsuccess = async (event) => {
                 sentenceHistory = event.target.result;
                 console.log('[Meet Translate] IndexedDB initialized');
+                await clearSentenceHistory();
             };
             request.onerror = () => {
                 console.warn('[Meet Translate] IndexedDB failed, using in-memory fallback');
@@ -518,6 +539,7 @@ console.log('[Meet Translate] Content script loaded!');
 
         const deduplicated = await deduplicateBeforeSend(sentenceBuffer);
         sentenceBuffer = [];
+        clearSilenceTimer();
 
         if (deduplicated.length === 0) {
             updateStatus('Đã lọc trùng lặp');
@@ -559,6 +581,29 @@ console.log('[Meet Translate] Content script loaded!');
         });
     }
 
+    function clearSilenceTimer() {
+        if (silenceTimer) {
+            clearTimeout(silenceTimer);
+            silenceTimer = null;
+        }
+    }
+
+    function resetSilenceTimer() {
+        clearSilenceTimer();
+        lastCaptionTime = Date.now();
+        silenceTimer = setTimeout(() => {
+            console.log('[Meet Translate] Silence timeout, flushing buffer');
+            flushBuffer();
+        }, SILENCE_TIMEOUT_MS);
+    }
+
+    function getSpeakerName(textEl) {
+        const block = textEl.closest(CAPTION_SELECTORS.BLOCK);
+        if (!block) return 'unknown';
+        const speakerEl = block.querySelector(CAPTION_SELECTORS.SPEAKER);
+        return speakerEl ? speakerEl.textContent.trim() : 'unknown';
+    }
+
     async function pollCaptions() {
         if (!isActive || !captionContainer) return;
 
@@ -571,15 +616,22 @@ console.log('[Meet Translate] Content script loaded!');
             const newSentences = await checkBlockStability(textEl, blockKey, state);
 
             if (newSentences.length > 0) {
+                const currentSpeaker = getSpeakerName(textEl);
+
+                if (activeSpeaker && currentSpeaker !== activeSpeaker) {
+                    console.log(`[Meet Translate] Speaker changed: "${activeSpeaker}" -> "${currentSpeaker}", flushing previous speaker's buffer`);
+                    flushBuffer();
+                }
+
+                activeSpeaker = currentSpeaker;
                 sentenceBuffer.push(...newSentences);
-                console.log(`[Meet Translate] Buffer: ${sentenceBuffer.length}/${MIN_SENTENCES}`);
+                console.log(`[Meet Translate] Buffer (${currentSpeaker}): ${sentenceBuffer.length} sentences`);
+                resetSilenceTimer();
             }
         }
 
-        if (sentenceBuffer.length >= MIN_SENTENCES) {
-            flushBuffer();
-        } else if (sentenceBuffer.length > 0) {
-            updateStatus(`Đang gom: ${sentenceBuffer.length}/${MIN_SENTENCES} câu`);
+        if (sentenceBuffer.length > 0 && !silenceTimer) {
+            resetSilenceTimer();
         }
     }
 
@@ -596,6 +648,7 @@ console.log('[Meet Translate] Content script loaded!');
             clearInterval(pollingTimer);
             pollingTimer = null;
         }
+        clearSilenceTimer();
     }
 
     function initCaptionDetection() {
