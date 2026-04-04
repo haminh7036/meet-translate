@@ -17,9 +17,9 @@ const DEFAULT_SOURCE_LANGUAGE = 'en';
 
 const GEMINI_API_PLACEHOLDER_KEY = '[ENCRYPTION_KEY]';
 
-const GEMINI_MODEL = 'gemini-2.5-flash';
+const GEMINI_MODEL = 'gemini-3.1-flash-lite-preview';
 
-const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_PLACEHOLDER_KEY}`;
+const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_PLACEHOLDER_KEY}`;
 
 const TEMPERATURE = 0.1;
 
