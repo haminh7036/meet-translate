@@ -1,0 +1,33 @@
+{
+  "manifest_version": 3,
+  "name": "Meet AI Translator",
+  "description": "Dịch caption Google Meet theo thời gian thực bằng Gemini AI",
+  "version": "1.0",
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "*://meet.google.com/*",
+    "https://generativelanguage.googleapis.com/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Meet AI Translator — Cài đặt"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://meet.google.com/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "css": [
+        "styles.css"
+      ]
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  }
+}
