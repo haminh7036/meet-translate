@@ -24,5 +24,22 @@
         "section_lang": "Language",
         "section_status": "Status",
         "translation_active": "Auto-translate"
+    },
+    "panel": {
+        "title": "Meet AI Translator",
+        "status_waiting": "Waiting...",
+        "status_minimized": "Minimized",
+        "status_off": "Off",
+        "empty_state": "Waiting for conversation...",
+        "copy_all_title": "Copy all",
+        "copy_single_title": "Copy translation",
+        "copy_all_success": "Copied all",
+        "status_collecting": "Waiting to complete",
+        "status_translating": "Translating",
+        "status_translated_count": "Translated {count} sentences",
+        "status_deduped": "Duplicates removed",
+        "status_error_connection": "Connection error",
+        "status_error_translation": "Translation failed",
+        "pending_dots": "..."
     }
 }

@@ -28,5 +28,15 @@
   ],
   "background": {
     "service_worker": "background.js"
-  }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "lang/*.json"
+      ],
+      "matches": [
+        "*://meet.google.com/*"
+      ]
+    }
+  ]
 }

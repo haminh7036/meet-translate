@@ -23,6 +23,7 @@
             .then((data) => {
                 translations = data;
                 applyTranslations();
+                updateLanguageOptionLabels();
             })
             .catch((err) => {
                 console.error('[Meet Translate] Failed to load translations:', err);
@@ -87,15 +88,13 @@
     }
 
     function populateLanguageSelects() {
-        Object.entries(LANGUAGES).forEach(([code, name]) => {
+        Object.keys(LANGUAGES).forEach((code) => {
             const optionSource = document.createElement('option');
             optionSource.value = code;
-            optionSource.textContent = name;
             elements.sourceLang.appendChild(optionSource);
 
             const optionTarget = document.createElement('option');
             optionTarget.value = code;
-            optionTarget.textContent = name;
             elements.targetLang.appendChild(optionTarget);
         });
 
@@ -104,6 +103,17 @@
             optionExt.value = code;
             optionExt.textContent = name;
             elements.extLang.appendChild(optionExt);
+        });
+    }
+
+    function updateLanguageOptionLabels() {
+        [elements.sourceLang, elements.targetLang].forEach((select) => {
+            Array.from(select.options).forEach((option) => {
+                const langName = translations.language?.[option.value];
+                if (langName) {
+                    option.textContent = langName;
+                }
+            });
         });
     }
 

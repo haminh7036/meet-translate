@@ -24,5 +24,22 @@
         "section_lang": "Ngôn ngữ",
         "section_status": "Trạng thái",
         "translation_active": "Dịch tự động"
+    },
+    "panel": {
+        "title": "Meet AI Translator",
+        "status_waiting": "Đang chờ...",
+        "status_minimized": "Đã thu nhỏ",
+        "status_off": "Đã tắt",
+        "empty_state": "Đang chờ cuộc hội thoại...",
+        "copy_all_title": "Copy tất cả",
+        "copy_single_title": "Copy bản dịch",
+        "copy_all_success": "Đã copy tất cả",
+        "status_collecting": "Đang chờ hoàn chỉnh",
+        "status_translating": "Đang dịch",
+        "status_translated_count": "Đã dịch {count} câu",
+        "status_deduped": "Đã lọc trùng lặp",
+        "status_error_connection": "Lỗi kết nối",
+        "status_error_translation": "Dịch thất bại",
+        "pending_dots": "..."
     }
 }
