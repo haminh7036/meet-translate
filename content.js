@@ -1,18 +1,19 @@
+console.log('[Meet Translate] Content script loaded!');
+
 (function () {
     'use strict';
 
     let captionContainer = null;
-    let observer = null;
     let isActive = true;
     let sourceLanguage = DEFAULT_SOURCE_LANGUAGE;
     let targetLanguage = DEFAULT_LANGUAGE;
     let apiKey = '';
     let retryTimer = null;
     const RETRY_INTERVAL_MS = 3000;
-    const TRANSLATE_INTERVAL_MS = 2000;
+    const POLL_INTERVAL_MS = 1000;
     const blockState = new Map();
-    let isUpdatingDOM = false;
-    let throttleTimers = new Map();
+    let overlayContainer = null;
+    let pollingTimer = null;
 
     function getAriaLabel() {
         const htmlLang = document.documentElement.lang || 'en';
@@ -65,7 +66,10 @@
         if (!captionContainer) {
             console.warn('[Meet Translate] No valid caption container found. Will retry in', RETRY_INTERVAL_MS / 1000, 's...');
             clearRetryTimer();
-            retryTimer = setTimeout(detectCaptionContainer, RETRY_INTERVAL_MS);
+            retryTimer = setTimeout(() => {
+                const found = detectCaptionContainer();
+                if (found) startPolling();
+            }, RETRY_INTERVAL_MS);
             return false;
         }
 
@@ -74,7 +78,73 @@
         return true;
     }
 
-    function getBlockKey(block) {
+    function createOverlay() {
+        if (overlayContainer) {
+            overlayContainer.remove();
+        }
+
+        overlayContainer = document.createElement('div');
+        overlayContainer.id = 'meet-translate-overlay';
+        overlayContainer.style.cssText = `
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            max-width: 600px;
+            width: 90%;
+            background: rgba(0, 0, 0, 0.85);
+            color: #fff;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-family: 'Google Sans', Roboto, Arial, sans-serif;
+            font-size: 16px;
+            line-height: 1.5;
+            text-align: center;
+            z-index: 999999;
+            pointer-events: none;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            display: none;
+            transition: opacity 0.2s ease;
+            word-break: break-word;
+        `;
+
+        document.body.appendChild(overlayContainer);
+        console.log('[Meet Translate] Overlay created');
+    }
+
+    function showOverlay(text) {
+        if (!overlayContainer) return;
+        overlayContainer.textContent = text;
+        overlayContainer.style.display = 'block';
+    }
+
+    function hideOverlay() {
+        if (!overlayContainer) return;
+        overlayContainer.style.display = 'none';
+    }
+
+    function hideOriginalCaptions() {
+        if (!captionContainer) return;
+        const textEls = captionContainer.querySelectorAll(CAPTION_SELECTORS.TEXT);
+        textEls.forEach((el) => {
+            el.style.opacity = '0';
+        });
+    }
+
+    function showOriginalCaptions() {
+        if (!captionContainer) return;
+        const textEls = captionContainer.querySelectorAll(CAPTION_SELECTORS.TEXT);
+        textEls.forEach((el) => {
+            el.style.opacity = '';
+        });
+    }
+
+    function getBlockKey(textEl) {
+        const block = textEl.closest(CAPTION_SELECTORS.BLOCK);
+        if (!block) return `unknown::${textEl.textContent.substring(0, 20)}`;
+
         const speakerEl = block.querySelector(CAPTION_SELECTORS.SPEAKER);
         const speakerName = speakerEl ? speakerEl.textContent.trim() : 'unknown';
         const allBlocks = captionContainer ? Array.from(captionContainer.querySelectorAll(CAPTION_SELECTORS.BLOCK)) : [];
@@ -85,71 +155,47 @@
     function getOrCreateBlockState(blockKey) {
         if (!blockState.has(blockKey)) {
             blockState.set(blockKey, {
-                lastSentText: '',
-                lastTranslatedText: '',
+                lastSentLength: 0,
+                fullTranslatedText: '',
                 isTranslating: false,
-                newTextBuffer: '',
                 lastCheckTime: 0,
             });
         }
         return blockState.get(blockKey);
     }
 
-    function scheduleThrottledTranslation(block, blockKey, state) {
-        const now = Date.now();
-        const timeSinceLastCheck = now - state.lastCheckTime;
-
-        if (timeSinceLastCheck >= TRANSLATE_INTERVAL_MS) {
-            state.lastCheckTime = now;
-            processCaptionBlock(block, blockKey, state);
-        } else {
-            if (throttleTimers.has(blockKey)) {
-                clearTimeout(throttleTimers.get(blockKey));
-            }
-            throttleTimers.set(blockKey, setTimeout(() => {
-                throttleTimers.delete(blockKey);
-                state.lastCheckTime = Date.now();
-                processCaptionBlock(block, blockKey, state);
-            }, TRANSLATE_INTERVAL_MS - timeSinceLastCheck));
-        }
-    }
-
-    function processCaptionBlock(block, blockKey, state) {
-        if (!isActive || !apiKey || isUpdatingDOM) return;
-
-        const textEl = block.querySelector(CAPTION_SELECTORS.TEXT);
-        if (!textEl) return;
+    function processTextElement(textEl, blockKey, state) {
+        if (!isActive) return;
+        if (!apiKey) return;
+        if (state.isTranslating) return;
 
         const currentFullText = textEl.textContent.trim();
         if (!currentFullText) return;
 
-        if (state.isTranslating) return;
+        const currentLength = currentFullText.length;
 
-        if (currentFullText === state.lastSentText) return;
+        if (currentLength <= state.lastSentLength) return;
 
-        let textToTranslate;
-        if (!state.lastSentText) {
-            textToTranslate = currentFullText;
-        } else if (currentFullText.startsWith(state.lastSentText)) {
-            textToTranslate = currentFullText.slice(state.lastSentText.length).trim();
-        } else {
-            const commonLen = getCommonPrefixLength(state.lastSentText, currentFullText);
-            textToTranslate = currentFullText.slice(commonLen).trim();
-        }
-
-        if (!textToTranslate) {
-            state.lastSentText = currentFullText;
+        const now = Date.now();
+        const timeSinceLastCheck = now - state.lastCheckTime;
+        if (timeSinceLastCheck < POLL_INTERVAL_MS) {
             return;
         }
 
-        state.isTranslating = true;
-        state.lastSentText = currentFullText;
+        const newText = currentFullText.slice(state.lastSentLength).trim();
+        if (!newText) {
+            state.lastSentLength = currentLength;
+            return;
+        }
 
-        console.log('[Meet Translate] Sending for translation:', textToTranslate.substring(0, 60));
+        state.lastCheckTime = now;
+        state.isTranslating = true;
+
+        console.log('[Meet Translate] Sending delta for translation:', newText.substring(0, 80));
 
         chrome.runtime.sendMessage({
             type: 'TRANSLATE',
-            text: textToTranslate,
+            text: newText,
             sourceLang: sourceLanguage,
             targetLang: targetLanguage,
             apiKey: apiKey,
@@ -158,89 +204,87 @@
 
             if (chrome.runtime.lastError) {
                 console.error('[Meet Translate] Message error:', chrome.runtime.lastError.message);
+                state.lastSentLength = currentLength;
                 return;
             }
 
             if (response && response.success && response.translatedText) {
-                state.lastTranslatedText = state.lastTranslatedText
-                    ? state.lastTranslatedText + ' ' + response.translatedText
+                state.lastSentLength = currentLength;
+                state.fullTranslatedText = state.fullTranslatedText
+                    ? state.fullTranslatedText + ' ' + response.translatedText
                     : response.translatedText;
 
-                isUpdatingDOM = true;
-                if (observer) observer.disconnect();
+                showOverlay(state.fullTranslatedText);
 
-                const textElFinal = block.querySelector(CAPTION_SELECTORS.TEXT);
-                if (textElFinal) {
-                    textElFinal.textContent = state.lastTranslatedText;
-                }
-
-                setTimeout(() => {
-                    isUpdatingDOM = false;
-                    if (captionContainer && observer) {
-                        observer.observe(captionContainer, {
-                            childList: true,
-                            subtree: true,
-                            characterData: true,
-                        });
-                    }
-                }, 300);
-
-                console.log('[Meet Translate] Translated:', textToTranslate.substring(0, 50), '->', response.translatedText.substring(0, 50));
+                console.log('[Meet Translate] Translated delta:', newText.substring(0, 50), '->', response.translatedText.substring(0, 50));
             } else if (response && !response.success) {
                 console.warn('[Meet Translate] Translation failed:', response.error);
+                state.lastSentLength = currentLength;
             }
         });
     }
 
-    function getCommonPrefixLength(a, b) {
-        let i = 0;
-        const minLen = Math.min(a.length, b.length);
-        while (i < minLen && a[i] === b[i]) {
-            i++;
+    function pollCaptions() {
+        if (!isActive || !captionContainer) return;
+
+        const textEls = captionContainer.querySelectorAll(CAPTION_SELECTORS.TEXT);
+        if (textEls.length === 0) {
+            hideOverlay();
+            return;
         }
-        return i;
-    }
 
-    function onMutation() {
-        if (!isActive || !captionContainer || isUpdatingDOM) return;
+        hideOriginalCaptions();
 
-        const blocks = captionContainer.querySelectorAll(CAPTION_SELECTORS.BLOCK);
-        blocks.forEach((block) => {
-            const blockKey = getBlockKey(block);
+        let hasActiveCaption = false;
+
+        textEls.forEach((textEl) => {
+            const blockKey = getBlockKey(textEl);
             const state = getOrCreateBlockState(blockKey);
-            scheduleThrottledTranslation(block, blockKey, state);
+            processTextElement(textEl, blockKey, state);
+
+            if (textEl.textContent.trim() && state.lastTranslatedText) {
+                hasActiveCaption = true;
+            }
         });
+
+        if (!hasActiveCaption) {
+            hideOverlay();
+        }
     }
 
-    function setupObserver() {
-        if (observer) {
-            observer.disconnect();
+    function startPolling() {
+        stopPolling();
+        createOverlay();
+        pollingTimer = setInterval(pollCaptions, POLL_INTERVAL_MS);
+        console.log('[Meet Translate] Polling started, interval:', POLL_INTERVAL_MS, 'ms');
+    }
+
+    function stopPolling() {
+        if (pollingTimer) {
+            clearInterval(pollingTimer);
+            pollingTimer = null;
         }
-
-        observer = new MutationObserver(onMutation);
-
-        observer.observe(captionContainer, {
-            childList: true,
-            subtree: true,
-            characterData: true,
-        });
-
-        console.log('[Meet Translate] Observer setup on caption container');
     }
 
     function initCaptionDetection() {
-        if (detectCaptionContainer()) {
-            setupObserver();
+        console.log('[Meet Translate] initCaptionDetection called');
+        const found = detectCaptionContainer();
+        console.log('[Meet Translate] detectCaptionContainer returned:', found);
+        if (found) {
+            console.log('[Meet Translate] Container found, starting polling');
+            startPolling();
+        } else {
+            console.log('[Meet Translate] Container not found, will retry');
         }
     }
 
     function waitForDOMReady() {
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => {
-                setTimeout(initCaptionDetection, 1000);
+                setTimeout(initCaptionDetection, 2000);
             });
         } else {
-            setTimeout(initCaptionDetection, 1000);
+            setTimeout(initCaptionDetection, 2000);
         }
     }
 
@@ -281,11 +325,16 @@
         }
         if (changes[STORAGE_KEYS.IS_ACTIVE]) {
             isActive = changes[STORAGE_KEYS.IS_ACTIVE].newValue;
+            if (!isActive) {
+                hideOverlay();
+                showOriginalCaptions();
+            }
         }
         if (changes[STORAGE_KEYS.API_KEY]) {
             apiKey = changes[STORAGE_KEYS.API_KEY].newValue;
         }
     });
 
+    console.log('[Meet Translate] Initializing...');
     loadSettings();
 })();

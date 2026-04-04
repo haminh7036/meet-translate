@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Meet AI Translator",
   "description": "Dịch phụ đề Google Meet theo thời gian thực bằng Gemini AI",
-  "version": "1.0",
+  "version": "0.0.1",
   "permissions": [
     "storage"
   ],
@@ -22,7 +22,8 @@
       "js": [
         "constants.js",
         "content.js"
-      ]
+      ],
+      "run_at": "document_start"
     }
   ],
   "background": {
