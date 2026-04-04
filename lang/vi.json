@@ -1,0 +1,16 @@
+{
+    "language": {
+        "vi": "Tiếng Việt",
+        "en": "Tiếng Anh",
+        "zh": "Tiếng Trung",
+        "ja": "Tiếng Nhật"
+    },
+    "ui": {
+        "save": "Lưu",
+        "cancel": "Huỷ",
+        "gemini_api_key": "API Key Gemini",
+        "source_language": "Ngôn ngữ gốc",
+        "target_language": "Ngôn ngữ đích",
+        "extension_language": "Ngôn ngữ extension"
+    }
+}

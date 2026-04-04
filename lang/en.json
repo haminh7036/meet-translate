@@ -1,0 +1,16 @@
+{
+    "language": {
+        "vi": "Vietnamese",
+        "en": "English",
+        "zh": "Chinese",
+        "ja": "Japanese"
+    },
+    "ui": {
+        "save": "Save",
+        "cancel": "Cancel",
+        "gemini_api_key": "Gemini API Key",
+        "source_language": "Source Language",
+        "target_language": "Target Language",
+        "extension_language": "Extension Language"
+    }
+}
