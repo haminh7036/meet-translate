@@ -18,6 +18,11 @@
         "save_success": "设置保存成功",
         "error_api_key": "请输入 API Key",
         "error_save": "保存设置失败",
-        "placeholder_api_key": "输入您的 Gemini API Key"
+        "placeholder_api_key": "输入您的 Gemini API Key",
+        "subtitle": "实时字幕翻译",
+        "section_auth": "认证",
+        "section_lang": "语言",
+        "section_status": "状态",
+        "translation_active": "自动翻译"
     }
 }

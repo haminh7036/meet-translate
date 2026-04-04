@@ -18,6 +18,11 @@
         "save_success": "Settings saved successfully",
         "error_api_key": "Please enter an API Key",
         "error_save": "Failed to save settings",
-        "placeholder_api_key": "Enter your Gemini API key"
+        "placeholder_api_key": "Enter your Gemini API key",
+        "subtitle": "Real-time caption translation",
+        "section_auth": "Authentication",
+        "section_lang": "Language",
+        "section_status": "Status",
+        "translation_active": "Auto-translate"
     }
 }

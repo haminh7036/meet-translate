@@ -14,6 +14,7 @@
         saveBtn: document.getElementById('saveBtn'),
         cancelBtn: document.getElementById('cancelBtn'),
         message: document.getElementById('message'),
+        toggleKeyVisibility: document.getElementById('toggleKeyVisibility'),
     };
 
     function loadTranslations(lang) {
@@ -65,6 +66,23 @@
         }
         if (value) {
             elements.statusText.textContent = value;
+        }
+
+        elements.statusText.className = elements.isActive.checked
+            ? 'status-badge status-active'
+            : 'status-badge status-inactive';
+    }
+
+    let isKeyVisible = false;
+
+    function toggleKeyVisibility() {
+        isKeyVisible = !isKeyVisible;
+        elements.apiKey.type = isKeyVisible ? 'text' : 'password';
+        const iconEye = elements.toggleKeyVisibility.querySelector('.icon-eye');
+        const iconEyeOff = elements.toggleKeyVisibility.querySelector('.icon-eye-off');
+        if (iconEye && iconEyeOff) {
+            iconEye.style.display = isKeyVisible ? 'none' : '';
+            iconEyeOff.style.display = isKeyVisible ? '' : 'none';
         }
     }
 
@@ -157,6 +175,8 @@
     elements.isActive.addEventListener('change', () => {
         updateStatusText();
     });
+
+    elements.toggleKeyVisibility.addEventListener('click', toggleKeyVisibility);
 
     elements.extLang.addEventListener('change', () => {
         currentExtLang = elements.extLang.value;

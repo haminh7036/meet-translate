@@ -4,45 +4,108 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meet AI Translator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="popup.css">
 </head>
 <body>
     <div class="popup-container">
-        <h1 class="popup-title">Meet AI Translator</h1>
+        <header class="popup-header">
+            <div class="header-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2a10 10 0 1 0 10 10H12V2z"></path>
+                    <path d="M20.66 7A10 10 0 0 0 14 2v6.66h6.66z"></path>
+                </svg>
+            </div>
+            <div class="header-text">
+                <h1 class="popup-title">Meet AI Translator</h1>
+                <p class="popup-subtitle" data-i18n="ui.subtitle">Dịch phụ đề theo thời gian thực</p>
+            </div>
+        </header>
 
-        <div class="form-group">
-            <label for="apiKey" class="form-label" data-i18n="ui.gemini_api_key">API Key Gemini</label>
-            <input type="password" id="apiKey" class="form-input" data-i18n-placeholder="ui.placeholder_api_key" placeholder="Enter your Gemini API key">
+        <div class="popup-body">
+            <section class="section">
+                <div class="section-header">
+                    <svg class="section-icon-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                    <span class="section-label" data-i18n="ui.section_auth">Xác thực</span>
+                </div>
+                <div class="form-group">
+                    <label for="apiKey" class="form-label" data-i18n="ui.gemini_api_key">API Key Gemini</label>
+                    <div class="input-wrapper">
+                        <input type="password" id="apiKey" class="form-input" data-i18n-placeholder="ui.placeholder_api_key" placeholder="Enter your Gemini API key">
+                        <button type="button" id="toggleKeyVisibility" class="input-icon-btn" aria-label="Toggle API key visibility">
+                            <svg class="icon-eye" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                            <svg class="icon-eye-off" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+                                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                                <line x1="1" y1="1" x2="23" y2="23"></line>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <div class="section-header">
+                    <svg class="section-icon-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="2" y1="12" x2="22" y2="12"></line>
+                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                    </svg>
+                    <span class="section-label" data-i18n="ui.section_lang">Ngôn ngữ</span>
+                </div>
+                <div class="lang-grid">
+                    <div class="form-group">
+                        <label for="sourceLang" class="form-label" data-i18n="ui.source_language">Ngôn ngữ gốc</label>
+                        <select id="sourceLang" class="form-select"></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="targetLang" class="form-label" data-i18n="ui.target_language">Ngôn ngữ đích</label>
+                        <select id="targetLang" class="form-select"></select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="extLang" class="form-label" data-i18n="ui.extension_language">Ngôn ngữ giao diện</label>
+                    <select id="extLang" class="form-select"></select>
+                </div>
+            </section>
+
+            <section class="section">
+                <div class="section-header">
+                    <svg class="section-icon-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                    </svg>
+                    <span class="section-label" data-i18n="ui.section_status">Trạng thái</span>
+                </div>
+                <div class="toggle-row">
+                    <span class="toggle-label" data-i18n="ui.translation_active">Dịch tự động</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="isActive" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span id="statusText" class="status-badge status-active" data-i18n="ui.on">BẬT</span>
+                </div>
+            </section>
         </div>
 
-        <div class="form-group">
-            <label for="sourceLang" class="form-label" data-i18n="ui.source_language">Ngôn ngữ gốc</label>
-            <select id="sourceLang" class="form-select"></select>
-        </div>
-
-        <div class="form-group">
-            <label for="targetLang" class="form-label" data-i18n="ui.target_language">Ngôn ngữ đích</label>
-            <select id="targetLang" class="form-select"></select>
-        </div>
-
-        <div class="form-group">
-            <label for="extLang" class="form-label" data-i18n="ui.extension_language">Ngôn ngữ extension</label>
-            <select id="extLang" class="form-select"></select>
-        </div>
-
-        <div class="form-group toggle-group">
-            <label class="form-label" data-i18n="ui.status">Trạng thái</label>
-            <label class="toggle-switch">
-                <input type="checkbox" id="isActive" checked>
-                <span class="toggle-slider"></span>
-            </label>
-            <span id="statusText" class="status-text" data-i18n="ui.on">BẬT</span>
-        </div>
-
-        <div class="button-group">
-            <button id="saveBtn" class="btn btn-primary" data-i18n="ui.save">Lưu</button>
-            <button id="cancelBtn" class="btn btn-secondary" data-i18n="ui.cancel">Huỷ</button>
-        </div>
+        <footer class="popup-footer">
+            <button id="saveBtn" class="btn btn-primary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                    <polyline points="7 3 7 8 15 8"></polyline>
+                </svg>
+                <span data-i18n="ui.save">Lưu</span>
+            </button>
+            <button id="cancelBtn" class="btn btn-ghost" data-i18n="ui.cancel">Huỷ</button>
+        </footer>
 
         <div id="message" class="message hidden"></div>
     </div>

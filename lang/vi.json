@@ -18,6 +18,11 @@
         "save_success": "Đã lưu cài đặt thành công",
         "error_api_key": "Vui lòng nhập API Key",
         "error_save": "Không thể lưu cài đặt",
-        "placeholder_api_key": "Nhập API Key Gemini của bạn"
+        "placeholder_api_key": "Nhập API Key Gemini của bạn",
+        "subtitle": "Dịch phụ đề theo thời gian thực",
+        "section_auth": "Xác thực",
+        "section_lang": "Ngôn ngữ",
+        "section_status": "Trạng thái",
+        "translation_active": "Dịch tự động"
     }
 }
