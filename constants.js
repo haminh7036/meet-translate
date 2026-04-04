@@ -23,7 +23,21 @@ const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/
 
 const TEMPERATURE = 0.1;
 
-const DEBOUNCE_MS = 800;
+const DEBOUNCE_MS = 500;
+
+const ARIA_LABELS = {
+    vi: 'Phụ đề',
+    en: 'Captions',
+    zh: '字幕',
+    ja: '字幕',
+};
+
+const CAPTION_SELECTORS = {
+    CONTAINER: '[role="region"]',
+    BLOCK: '.nMcdL.bj4p3b',
+    SPEAKER: '.NWpY1d',
+    TEXT: '.ygicle.VbkSUe',
+};
 
 const STORAGE_KEYS = {
     SOURCE_LANGUAGE: 'meet_translate_source_language',
@@ -42,6 +56,6 @@ const DEFAULT_STORAGE_VALUES = {
 };
 
 const PROMPT = {
-    SYSTEM: "You are a professional translator. Your task is to translate the text provided by the user from the source language to the target language.\n\nRules:\n1. Translate the text accurately and naturally.\n2. Keep the tone and style of the original text.\n3. If the text contains technical terms, translate them appropriately based on the context.",
+    SYSTEM: "You are a professional translator. Your task is to translate the text provided by the user from the source language to the target language.\n\nRules:\n1. Translate the text accurately and naturally.\n2. Keep the tone and style of the original text.\n3. If the text contains technical terms, translate them appropriately based on the context.\n4. Keep proper nouns (names of people, places, organizations) unchanged.\n5. Keep numbers, dates, times, and monetary values unchanged.\n6. Keep technical terms and jargon unchanged if they are commonly used in their original form.",
     USER: (text, sourceLanguage, targetLanguage) => `Translate the following text from ${sourceLanguage} to ${targetLanguage}:\n\n${text}\n\nReturn only the translated text, without any additional formatting or explanation.`,
 }

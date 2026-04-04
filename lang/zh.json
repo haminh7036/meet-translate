@@ -11,6 +11,13 @@
         "gemini_api_key": "Gemini API Key",
         "source_language": "源语言",
         "target_language": "目标语言",
-        "extension_language": "扩展语言"
+        "extension_language": "扩展语言",
+        "status": "状态",
+        "on": "开启",
+        "off": "关闭",
+        "save_success": "设置保存成功",
+        "error_api_key": "请输入 API Key",
+        "error_save": "保存设置失败",
+        "placeholder_api_key": "输入您的 Gemini API Key"
     }
 }

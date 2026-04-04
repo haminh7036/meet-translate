@@ -11,6 +11,13 @@
         "gemini_api_key": "API Key Gemini",
         "source_language": "Ngôn ngữ gốc",
         "target_language": "Ngôn ngữ đích",
-        "extension_language": "Ngôn ngữ extension"
+        "extension_language": "Ngôn ngữ extension",
+        "status": "Trạng thái",
+        "on": "BẬT",
+        "off": "TẮT",
+        "save_success": "Đã lưu cài đặt thành công",
+        "error_api_key": "Vui lòng nhập API Key",
+        "error_save": "Không thể lưu cài đặt",
+        "placeholder_api_key": "Nhập API Key Gemini của bạn"
     }
 }

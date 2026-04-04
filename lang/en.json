@@ -11,6 +11,13 @@
         "gemini_api_key": "Gemini API Key",
         "source_language": "Source Language",
         "target_language": "Target Language",
-        "extension_language": "Extension Language"
+        "extension_language": "Extension Language",
+        "status": "Status",
+        "on": "ON",
+        "off": "OFF",
+        "save_success": "Settings saved successfully",
+        "error_api_key": "Please enter an API Key",
+        "error_save": "Failed to save settings",
+        "placeholder_api_key": "Enter your Gemini API key"
     }
 }

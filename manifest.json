@@ -20,10 +20,8 @@
         "*://meet.google.com/*"
       ],
       "js": [
+        "constants.js",
         "content.js"
-      ],
-      "css": [
-        "styles.css"
       ]
     }
   ],

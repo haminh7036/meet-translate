@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meet AI Translator</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <div class="popup-container">
+        <h1 class="popup-title">Meet AI Translator</h1>
+
+        <div class="form-group">
+            <label for="apiKey" class="form-label" data-i18n="ui.gemini_api_key">API Key Gemini</label>
+            <input type="password" id="apiKey" class="form-input" data-i18n-placeholder="ui.placeholder_api_key" placeholder="Enter your Gemini API key">
+        </div>
+
+        <div class="form-group">
+            <label for="sourceLang" class="form-label" data-i18n="ui.source_language">Ngôn ngữ gốc</label>
+            <select id="sourceLang" class="form-select"></select>
+        </div>
+
+        <div class="form-group">
+            <label for="targetLang" class="form-label" data-i18n="ui.target_language">Ngôn ngữ đích</label>
+            <select id="targetLang" class="form-select"></select>
+        </div>
+
+        <div class="form-group">
+            <label for="extLang" class="form-label" data-i18n="ui.extension_language">Ngôn ngữ extension</label>
+            <select id="extLang" class="form-select"></select>
+        </div>
+
+        <div class="form-group toggle-group">
+            <label class="form-label" data-i18n="ui.status">Trạng thái</label>
+            <label class="toggle-switch">
+                <input type="checkbox" id="isActive" checked>
+                <span class="toggle-slider"></span>
+            </label>
+            <span id="statusText" class="status-text" data-i18n="ui.on">BẬT</span>
+        </div>
+
+        <div class="button-group">
+            <button id="saveBtn" class="btn btn-primary" data-i18n="ui.save">Lưu</button>
+            <button id="cancelBtn" class="btn btn-secondary" data-i18n="ui.cancel">Huỷ</button>
+        </div>
+
+        <div id="message" class="message hidden"></div>
+    </div>
+
+    <script src="constants.js"></script>
+    <script src="popup.js"></script>
+</body>
+</html>
