@@ -13,6 +13,8 @@ const EXTENSION_LANGUAGES = {
 
 const DEFAULT_LANGUAGE = 'vi';
 
+const DEFAULT_SOURCE_LANGUAGE = 'en';
+
 const GEMINI_API_PLACEHOLDER_KEY = '[ENCRYPTION_KEY]';
 
 const GEMINI_MODEL = 'gemini-2.5-flash';
@@ -24,6 +26,7 @@ const TEMPERATURE = 0.1;
 const DEBOUNCE_MS = 800;
 
 const STORAGE_KEYS = {
+    SOURCE_LANGUAGE: 'meet_translate_source_language',
     TARGET_LANGUAGE: 'meet_translate_target_language',
     IS_ACTIVE: 'meet_translate_is_active',
     EXTENSION_LANGUAGE: 'meet_translate_extension_language',
@@ -31,6 +34,7 @@ const STORAGE_KEYS = {
 };
 
 const DEFAULT_STORAGE_VALUES = {
+    [STORAGE_KEYS.SOURCE_LANGUAGE]: DEFAULT_SOURCE_LANGUAGE,
     [STORAGE_KEYS.TARGET_LANGUAGE]: DEFAULT_LANGUAGE,
     [STORAGE_KEYS.IS_ACTIVE]: true,
     [STORAGE_KEYS.EXTENSION_LANGUAGE]: DEFAULT_LANGUAGE,
