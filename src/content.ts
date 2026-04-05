@@ -1,5 +1,4 @@
 import {
-  LANGUAGES,
   DEFAULT_LANGUAGE,
   DEFAULT_SOURCE_LANGUAGE,
   ARIA_LABELS,
@@ -8,7 +7,7 @@ import {
 } from './constants'
 import { createElement, Copy, Check, Minimize2, Maximize2 } from 'lucide'
 
-function iconToString(iconNode: any, attrs: Record<string, string | number> = {}): string {
+function iconToString(iconNode: Parameters<typeof createElement>[0], attrs: Record<string, string | number> = {}): string {
   const svgElement = createElement(iconNode, attrs)
   return svgElement.outerHTML
 }
@@ -71,10 +70,8 @@ console.log('[Meet Translate] Content script loaded!')
   const processedSentencesInMemory = new Set<string>()
   const translationItems: TranslationItem[] = []
   let activeSpeaker: string | null = null
-  let lastCaptionTime = 0
   let silenceTimer: ReturnType<typeof setTimeout> | null = null
   let pendingItemIndex: number | null | 'flushing' = null
-  let panelLang = DEFAULT_LANGUAGE
   let panelTranslations: Record<string, unknown> = {}
 
   const PANEL_TEXT_DEFAULTS: PanelTextDefaults = {
@@ -112,16 +109,15 @@ console.log('[Meet Translate] Content script loaded!')
     return result
   }
 
-  function loadPanelTranslations(lang: string): void {
-    panelLang = lang
+  function loadPanelTranslations(_lang: string): void {
     const xhr = new XMLHttpRequest()
-    xhr.open('GET', chrome.runtime.getURL(`lang/${lang}.json`))
+    xhr.open('GET', chrome.runtime.getURL(`lang/${_lang}.json`))
     xhr.onload = () => {
       try {
         panelTranslations = JSON.parse(xhr.responseText)
         updatePanelTexts()
-      } catch (e) {
-        console.error('[Meet Translate] Failed to parse panel translations:', e)
+    } catch (_e) {
+        console.error('[Meet Translate] Failed to parse panel translations:', _e)
       }
     }
     xhr.onerror = () => {
@@ -219,8 +215,9 @@ console.log('[Meet Translate] Content script loaded!')
       processedSentencesInMemory.clear()
       return
     }
+    const db = sentenceHistory as IDBDatabase
     return new Promise((resolve) => {
-      const tx = sentenceHistory.transaction('sentences', 'readwrite')
+      const tx = db.transaction('sentences', 'readwrite')
       const store = tx.objectStore('sentences')
       store.clear()
       tx.oncomplete = () => {
@@ -249,7 +246,7 @@ console.log('[Meet Translate] Content script loaded!')
         console.warn('[Meet Translate] IndexedDB failed, using in-memory fallback')
         sentenceHistory = 'memory'
       }
-    } catch (e) {
+    } catch {
       console.warn('[Meet Translate] IndexedDB not available, using in-memory fallback')
       sentenceHistory = 'memory'
     }
@@ -260,8 +257,9 @@ console.log('[Meet Translate] Content script loaded!')
     if (sentenceHistory === 'memory') {
       return processedSentencesInMemory.has(text)
     }
+    const db = sentenceHistory as IDBDatabase
     return new Promise((resolve) => {
-      const tx = sentenceHistory.transaction('sentences', 'readonly')
+      const tx = db.transaction('sentences', 'readonly')
       const store = tx.objectStore('sentences')
       const request = store.get(text)
       request.onsuccess = () => resolve(!!request.result)
@@ -275,8 +273,9 @@ console.log('[Meet Translate] Content script loaded!')
       processedSentencesInMemory.add(text)
       return
     }
+    const db = sentenceHistory as IDBDatabase
     return new Promise((resolve) => {
-      const tx = sentenceHistory.transaction('sentences', 'readwrite')
+      const tx = db.transaction('sentences', 'readwrite')
       const store = tx.objectStore('sentences')
       store.put({ text, timestamp: Date.now() })
       tx.oncomplete = () => {
@@ -492,7 +491,7 @@ console.log('[Meet Translate] Content script loaded!')
     if (statusEl) statusEl.textContent = text
   }
 
-  function addTranslationToPanel(originalText: string, translatedText: string): void {
+  function _addTranslationToPanel(originalText: string, translatedText: string): void {
     const emptyEl = document.getElementById('meet-translate-empty')
     if (emptyEl) emptyEl.remove()
 
@@ -645,7 +644,7 @@ console.log('[Meet Translate] Content script loaded!')
       translationItems[itemIndex].pending = false
     }
 
-    const statusEl = item.querySelector('.pending-status')
+    const statusEl = item.querySelector('.pending-status') as HTMLElement | null
     if (statusEl) {
       const dots = statusEl.querySelector('.pending-dots')
       if (dots) dots.remove()
@@ -657,14 +656,15 @@ console.log('[Meet Translate] Content script loaded!')
       statusEl.textContent = translatedText
     }
 
-    const originalEl = item.querySelector('.pending-original')
+    const originalEl = item.querySelector('.pending-original') as HTMLElement | null
     if (originalEl) {
       originalEl.className = ''
       originalEl.style.cssText = 'font-size: 11px; color: #9aa0a6; margin-bottom: 4px; line-height: 1.4;'
     }
 
-    item.style.transition = 'border-color 0.3s ease, background 0.3s ease, opacity 0.3s ease'
-    item.style.cssText = `
+    const panelEl = item as HTMLElement
+    panelEl.style.transition = 'border-color 0.3s ease, background 0.3s ease, opacity 0.3s ease'
+    panelEl.style.cssText = `
       padding: 8px 10px; background: rgba(255, 255, 255, 0.05);
       border-radius: 8px; border-left: 3px solid #8ab4f8;
       position: relative; cursor: pointer; opacity: 1;
@@ -714,8 +714,8 @@ console.log('[Meet Translate] Content script loaded!')
       await navigator.clipboard.writeText(allText)
       updateStatus(t('panel.copy_all_success'))
       setTimeout(() => updateStatus(t('panel.status_waiting')), 2000)
-    } catch (e) {
-      console.error('[Meet Translate] Copy all failed:', e)
+    } catch (_e) {
+      console.error('[Meet Translate] Copy all failed:', _e)
     }
   }
 
@@ -911,7 +911,6 @@ console.log('[Meet Translate] Content script loaded!')
 
   function resetSilenceTimer(): void {
     clearSilenceTimer()
-    lastCaptionTime = Date.now()
     silenceTimer = setTimeout(() => {
       console.log('[Meet Translate] Silence timeout, flushing buffer')
       flushBuffer()

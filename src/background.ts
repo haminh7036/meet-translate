@@ -60,12 +60,17 @@ async function callGeminiAPI(
   }
 
   const data = await response.json() as Record<string, unknown>
+  const candidates = data.candidates as Array<Record<string, unknown>> | undefined
 
   if (
-    data.candidates &&
-    (data.candidates as Array<Record<string, unknown>>)[0]?.content?.parts?.[0]?.text
+    candidates &&
+    candidates[0] &&
+    (candidates[0] as Record<string, unknown>).content &&
+    ((candidates[0] as Record<string, unknown>).content as Record<string, unknown>).parts &&
+    (((candidates[0] as Record<string, unknown>).content as Record<string, unknown>).parts as Array<Record<string, unknown>>)[0]?.text
   ) {
-    return ((data.candidates as Array<Record<string, unknown>>)[0].content.parts[0] as Record<string, string>).text.trim()
+    const parts = ((candidates[0] as Record<string, unknown>).content as Record<string, unknown>).parts as Array<Record<string, unknown>>
+    return (parts[0].text as string).trim()
   }
 
   throw new Error('Invalid response from Gemini API')
