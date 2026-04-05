@@ -2,10 +2,7 @@
   <div class="w-[340px] bg-white text-neutral-900 font-[Inter] text-sm antialiased">
     <header class="flex items-center gap-3 px-4 pt-4 pb-3 border-b border-neutral-200">
       <div class="w-10 h-10 rounded-[10px] bg-neutral-900 text-white flex items-center justify-center flex-shrink-0">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 2a10 10 0 1 0 10 10H12V2z"></path>
-          <path d="M20.66 7A10 10 0 0 0 14 2v6.66h6.66z"></path>
-        </svg>
+        <Globe :size="20" />
       </div>
       <div class="flex-1 min-w-0">
         <h1 class="text-[15px] font-bold leading-tight text-neutral-900">Meet AI Translator</h1>
@@ -16,10 +13,7 @@
     <div class="px-4 py-3 flex flex-col gap-3">
       <section class="bg-neutral-100 rounded-[10px] p-3 flex flex-col gap-2.5">
         <div class="flex items-center gap-1.5">
-          <svg class="text-neutral-500 flex-shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-          </svg>
+          <Lock class="text-neutral-500 flex-shrink-0" :size="16" />
           <span class="text-[11px] font-semibold uppercase tracking-wider text-neutral-500">{{ t('ui.section_auth') }}</span>
         </div>
         <div class="flex flex-col gap-1">
@@ -38,14 +32,8 @@
               class="absolute right-1.5 w-7 h-7 border-none bg-transparent rounded-md flex items-center justify-center cursor-pointer text-neutral-500 transition-all duration-150 hover:bg-neutral-200 hover:text-neutral-900"
               aria-label="Toggle API key visibility"
             >
-              <svg v-show="!isKeyVisible" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                <circle cx="12" cy="12" r="3"></circle>
-              </svg>
-              <svg v-show="isKeyVisible" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
-                <line x1="1" y1="1" x2="23" y2="23"></line>
-              </svg>
+              <Eye v-show="!isKeyVisible" :size="16" />
+              <EyeOff v-show="isKeyVisible" :size="16" />
             </button>
           </div>
         </div>
@@ -53,11 +41,7 @@
 
       <section class="bg-neutral-100 rounded-[10px] p-3 flex flex-col gap-2.5">
         <div class="flex items-center gap-1.5">
-          <svg class="text-neutral-500 flex-shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"></circle>
-            <line x1="2" y1="12" x2="22" y2="12"></line>
-            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-          </svg>
+          <Languages class="text-neutral-500 flex-shrink-0" :size="16" />
           <span class="text-[11px] font-semibold uppercase tracking-wider text-neutral-500">{{ t('ui.section_lang') }}</span>
         </div>
         <div class="grid grid-cols-2 gap-2">
@@ -100,10 +84,7 @@
 
       <section class="bg-neutral-100 rounded-[10px] p-3 flex flex-col gap-2.5">
         <div class="flex items-center gap-1.5">
-          <svg class="text-neutral-500 flex-shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-          </svg>
+          <Bell class="text-neutral-500 flex-shrink-0" :size="16" />
           <span class="text-[11px] font-semibold uppercase tracking-wider text-neutral-500">{{ t('ui.section_status') }}</span>
         </div>
         <div class="flex items-center gap-2.5">
@@ -138,11 +119,7 @@
         @click="saveSettings"
         class="flex-1 inline-flex items-center justify-center gap-1.5 px-4 py-[9px] border-none rounded-md text-sm font-semibold cursor-pointer bg-neutral-900 text-white transition-all duration-150 hover:bg-neutral-700 active:scale-[0.98]"
       >
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-          <polyline points="17 21 17 13 7 13 7 21"></polyline>
-          <polyline points="7 3 7 8 15 8"></polyline>
-        </svg>
+        <Save :size="15" />
         <span>{{ t('ui.save') }}</span>
       </button>
       <button
@@ -164,6 +141,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { LANGUAGES, EXTENSION_LANGUAGES, DEFAULT_LANGUAGE, DEFAULT_SOURCE_LANGUAGE, STORAGE_KEYS } from '../constants'
+import { Globe, Lock, Eye, EyeOff, Languages, Bell, Save } from '@lucide/vue'
 
 interface Translations {
   language?: Record<string, string>

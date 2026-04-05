@@ -6,6 +6,18 @@ import {
   CAPTION_SELECTORS,
   STORAGE_KEYS,
 } from './constants'
+import { createElement, Copy, Check, Minimize2, Maximize2 } from 'lucide'
+
+function iconToString(iconNode: any, attrs: Record<string, string | number> = {}): string {
+  const svgElement = createElement(iconNode, attrs)
+  return svgElement.outerHTML
+}
+
+const ICON_COPY = iconToString(Copy, { width: 16, height: 16 })
+const ICON_COPY_SMALL = iconToString(Copy, { width: 14, height: 14 })
+const ICON_CHECK = iconToString(Check, { width: 14, height: 14, color: '#4ade80' })
+const ICON_MINIMIZE = iconToString(Minimize2, { width: 16, height: 16 })
+const ICON_MAXIMIZE = iconToString(Maximize2, { width: 16, height: 16 })
 
 console.log('[Meet Translate] Content script loaded!')
 
@@ -360,7 +372,7 @@ console.log('[Meet Translate] Content script loaded!')
       padding: 4px; border-radius: 4px; display: flex; align-items: center;
       justify-content: center; transition: color 0.15s, background 0.15s;
     `
-    copyAllBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>`
+    copyAllBtn.innerHTML = ICON_COPY
     copyAllBtn.title = t('panel.copy_all_title')
     copyAllBtn.addEventListener('mouseenter', () => {
       copyAllBtn.style.color = '#fff'
@@ -379,7 +391,7 @@ console.log('[Meet Translate] Content script loaded!')
       padding: 4px; border-radius: 4px; display: flex; align-items: center;
       justify-content: center; transition: color 0.15s, background 0.15s;
     `
-    minimizeBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 14 10 14 10 20"></polyline><polyline points="20 10 14 10 14 4"></polyline><line x1="14" y1="10" x2="21" y2="3"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>`
+    minimizeBtn.innerHTML = ICON_MINIMIZE
     minimizeBtn.addEventListener('mouseenter', () => {
       minimizeBtn.style.color = '#fff'
       minimizeBtn.style.background = 'rgba(255,255,255,0.1)'
@@ -461,7 +473,7 @@ console.log('[Meet Translate] Content script loaded!')
         content.style.display = 'none'
       }
       if (btn)
-        btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>`
+        btn.innerHTML = ICON_MAXIMIZE
       updateStatus(t('panel.status_minimized'))
     } else {
       panelContainer!.style.transition = 'max-height 0.25s ease, opacity 0.25s ease'
@@ -470,7 +482,7 @@ console.log('[Meet Translate] Content script loaded!')
         content.style.display = 'flex'
       }
       if (btn)
-        btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 14 10 14 10 20"></polyline><polyline points="20 10 14 10 14 4"></polyline><line x1="14" y1="10" x2="21" y2="3"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>`
+        btn.innerHTML = ICON_MINIMIZE
       updateStatus(t('panel.status_waiting'))
     }
   }
@@ -515,18 +527,16 @@ console.log('[Meet Translate] Content script loaded!')
       border-radius: 4px; display: flex; align-items: center;
       justify-content: center; opacity: 0; transition: all 0.15s;
     `
-    copyBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>`
+    copyBtn.innerHTML = ICON_COPY_SMALL
     copyBtn.title = t('panel.copy_single_title')
-
-    const checkIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`
 
     copyBtn.addEventListener('click', (e) => {
       e.stopPropagation()
       navigator.clipboard.writeText(translatedText).then(() => {
-        copyBtn.innerHTML = checkIcon
+        copyBtn.innerHTML = ICON_CHECK
         copyBtn.style.color = '#4ade80'
         setTimeout(() => {
-          copyBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>`
+          copyBtn.innerHTML = ICON_COPY_SMALL
           copyBtn.style.color = '#9aa0a6'
         }, 1500)
       }).catch((err) => {
@@ -668,18 +678,16 @@ console.log('[Meet Translate] Content script loaded!')
       border-radius: 4px; display: flex; align-items: center;
       justify-content: center; opacity: 0; transition: all 0.15s;
     `
-    copyBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>`
+    copyBtn.innerHTML = ICON_COPY_SMALL
     copyBtn.title = t('panel.copy_single_title')
-
-    const checkIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`
 
     copyBtn.addEventListener('click', (e) => {
       e.stopPropagation()
       navigator.clipboard.writeText(translatedText).then(() => {
-        copyBtn.innerHTML = checkIcon
+        copyBtn.innerHTML = ICON_CHECK
         copyBtn.style.color = '#4ade80'
         setTimeout(() => {
-          copyBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>`
+          copyBtn.innerHTML = ICON_COPY_SMALL
           copyBtn.style.color = '#9aa0a6'
         }, 1500)
       }).catch((err) => {
