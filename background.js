@@ -74,10 +74,15 @@ async function translateWithRetry(text, sourceLang, targetLang, apiKey, maxRetri
 }
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    console.log('[Meet Translate] Background received message:', message.type);
+
     if (message.type !== 'TRANSLATE') return;
+
+    console.log('[Meet Translate] Starting translation for', message.sourceLang, '->', message.targetLang);
 
     translateWithRetry(message.text, message.sourceLang, message.targetLang, message.apiKey)
         .then((translatedText) => {
+            console.log('[Meet Translate] Translation result:', translatedText ? 'success' : 'failed');
             if (translatedText) {
                 sendResponse({ success: true, translatedText });
             } else {
@@ -85,6 +90,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             }
         })
         .catch((error) => {
+            console.error('[Meet Translate] Translation error:', error);
             sendResponse({ success: false, error: error.message });
         });
 

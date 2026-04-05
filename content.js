@@ -69,15 +69,20 @@ console.log('[Meet Translate] Content script loaded!');
 
     function loadPanelTranslations(lang) {
         panelLang = lang;
-        fetch(chrome.runtime.getURL(`lang/${lang}.json`))
-            .then((res) => res.json())
-            .then((data) => {
-                panelTranslations = data;
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', chrome.runtime.getURL(`lang/${lang}.json`));
+        xhr.onload = () => {
+            try {
+                panelTranslations = JSON.parse(xhr.responseText);
                 updatePanelTexts();
-            })
-            .catch((err) => {
-                console.error('[Meet Translate] Failed to load panel translations:', err);
-            });
+            } catch (e) {
+                console.error('[Meet Translate] Failed to parse panel translations:', e);
+            }
+        };
+        xhr.onerror = () => {
+            console.error('[Meet Translate] Failed to load panel translations');
+        };
+        xhr.send();
     }
 
     function updatePanelTexts() {
@@ -406,26 +411,14 @@ console.log('[Meet Translate] Content script loaded!');
             panelContainer.style.top = currentRect.top + 'px';
             panelContainer.style.left = currentRect.left + 'px';
             panelContainer.style.maxHeight = '44px';
-            panelContainer.style.transition = 'max-height 0.25s ease, top 0.25s ease, opacity 0.25s ease';
+            panelContainer.style.transition = 'max-height 0.25s ease, opacity 0.25s ease';
             if (content) {
                 content.style.display = 'none';
             }
             if (btn) btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>`;
             updateStatus(t('panel.status_minimized'));
         } else {
-            const currentRect = panelContainer.getBoundingClientRect();
-            const spaceBelow = window.innerHeight - currentRect.bottom;
-            const spaceNeeded = 450;
-
-            if (spaceBelow < spaceNeeded) {
-                panelContainer.style.transition = 'max-height 0.25s ease, bottom 0.25s ease, opacity 0.25s ease';
-                panelContainer.style.top = 'auto';
-                panelContainer.style.bottom = Math.max(0, spaceBelow) + 'px';
-            } else {
-                panelContainer.style.transition = 'max-height 0.25s ease, top 0.25s ease, opacity 0.25s ease';
-                panelContainer.style.bottom = 'auto';
-                panelContainer.style.top = currentRect.top + 'px';
-            }
+            panelContainer.style.transition = 'max-height 0.25s ease, opacity 0.25s ease';
             panelContainer.style.maxHeight = '450px';
             if (content) {
                 content.style.display = 'flex';
