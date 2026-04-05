@@ -78,40 +78,50 @@
               for="sourceLang"
               class="text-xs font-medium text-neutral-700"
             >{{ t('ui.source_language') }}</label>
-            <select
-              id="sourceLang"
-              v-model="sourceLanguage"
-              class="w-full px-2.5 py-2 border border-neutral-200 rounded-md text-sm bg-white text-neutral-900 cursor-pointer appearance-none pr-7 transition-all duration-150 focus:outline-none focus:border-neutral-900 focus:ring-2 focus:ring-neutral-900/10"
-              style="background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23737373' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E&quot;); background-repeat: no-repeat; background-position: right 8px center;"
-            >
-              <option
-                v-for="(name, code) in languages"
-                :key="code"
-                :value="code"
+            <div class="relative">
+              <select
+                id="sourceLang"
+                v-model="sourceLanguage"
+                class="w-full appearance-none rounded-md border border-neutral-200 bg-white px-2.5 py-2 pr-7 text-sm text-neutral-900 transition-all duration-150 focus:border-neutral-900 focus:outline-none focus:ring-2 focus:ring-neutral-900/10"
               >
-                {{ langLabel(code) }}
-              </option>
-            </select>
+                <option
+                  v-for="(name, code) in languages"
+                  :key="code"
+                  :value="code"
+                >
+                  {{ langLabel(code) }}
+                </option>
+              </select>
+              <ChevronDown
+                :size="16"
+                class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-neutral-500"
+              />
+            </div>
           </div>
           <div class="flex flex-col gap-1">
             <label
               for="targetLang"
               class="text-xs font-medium text-neutral-700"
             >{{ t('ui.target_language') }}</label>
-            <select
-              id="targetLang"
-              v-model="targetLanguage"
-              class="w-full px-2.5 py-2 border border-neutral-200 rounded-md text-sm bg-white text-neutral-900 cursor-pointer appearance-none pr-7 transition-all duration-150 focus:outline-none focus:border-neutral-900 focus:ring-2 focus:ring-neutral-900/10"
-              style="background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23737373' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E&quot;); background-repeat: no-repeat; background-position: right 8px center;"
-            >
-              <option
-                v-for="(name, code) in languages"
-                :key="code"
-                :value="code"
+            <div class="relative">
+              <select
+                id="targetLang"
+                v-model="targetLanguage"
+                class="w-full appearance-none rounded-md border border-neutral-200 bg-white px-2.5 py-2 pr-7 text-sm text-neutral-900 transition-all duration-150 focus:border-neutral-900 focus:outline-none focus:ring-2 focus:ring-neutral-900/10"
               >
-                {{ langLabel(code) }}
-              </option>
-            </select>
+                <option
+                  v-for="(name, code) in languages"
+                  :key="code"
+                  :value="code"
+                >
+                  {{ langLabel(code) }}
+                </option>
+              </select>
+              <ChevronDown
+                :size="16"
+                class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-neutral-500"
+              />
+            </div>
           </div>
         </div>
         <div class="flex flex-col gap-1">
@@ -119,21 +129,26 @@
             for="extLang"
             class="text-xs font-medium text-neutral-700"
           >{{ t('ui.extension_language') }}</label>
-          <select
-            id="extLang"
-            v-model="extLanguage"
-            class="w-full px-2.5 py-2 border border-neutral-200 rounded-md text-sm bg-white text-neutral-900 cursor-pointer appearance-none pr-7 transition-all duration-150 focus:outline-none focus:border-neutral-900 focus:ring-2 focus:ring-neutral-900/10"
-            style="background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23737373' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E&quot;); background-repeat: no-repeat; background-position: right 8px center;"
-            @change="onExtLangChange"
-          >
-            <option
-              v-for="(name, code) in extLanguages"
-              :key="code"
-              :value="code"
+          <div class="relative">
+            <select
+              id="extLang"
+              v-model="extLanguage"
+              class="w-full appearance-none rounded-md border border-neutral-200 bg-white px-2.5 py-2 pr-7 text-sm text-neutral-900 transition-all duration-150 focus:border-neutral-900 focus:outline-none focus:ring-2 focus:ring-neutral-900/10"
+              @change="onExtLangChange"
             >
-              {{ name }}
-            </option>
-          </select>
+              <option
+                v-for="(name, code) in extLanguages"
+                :key="code"
+                :value="code"
+              >
+                {{ name }}
+              </option>
+            </select>
+            <ChevronDown
+              :size="16"
+              class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-neutral-500"
+            />
+          </div>
         </div>
       </section>
 
@@ -201,7 +216,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { LANGUAGES, EXTENSION_LANGUAGES, DEFAULT_LANGUAGE, DEFAULT_SOURCE_LANGUAGE, STORAGE_KEYS } from '../constants'
-import { Globe, Lock, Eye, EyeOff, Languages, Bell, Save, X } from '@lucide/vue'
+import { Globe, Lock, Eye, EyeOff, Languages, Bell, Save, X, ChevronDown } from '@lucide/vue'
 
 interface Translations {
   language?: Record<string, string>
