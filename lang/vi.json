@@ -3,7 +3,19 @@
         "vi": "Tiếng Việt",
         "en": "Tiếng Anh",
         "zh": "Tiếng Trung",
-        "ja": "Tiếng Nhật"
+        "ja": "Tiếng Nhật",
+        "ko": "Tiếng Hàn",
+        "th": "Tiếng Thái",
+        "fr": "Tiếng Pháp",
+        "de": "Tiếng Đức",
+        "es": "Tiếng Tây Ban Nha",
+        "ru": "Tiếng Nga",
+        "it": "Tiếng Ý",
+        "pt": "Tiếng Bồ Đào Nha",
+        "ms": "Tiếng Mã Lai",
+        "id": "Tiếng Indonesia",
+        "ar": "Tiếng Ả Rập",
+        "hi": "Tiếng Hindi"
     },
     "ui": {
         "save": "Lưu",

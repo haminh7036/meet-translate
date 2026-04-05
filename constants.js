@@ -3,6 +3,18 @@ const LANGUAGES = {
     en: 'English',
     zh: 'Chinese',
     ja: 'Japanese',
+    ko: 'Korean',
+    th: 'Thai',
+    fr: 'French',
+    de: 'German',
+    es: 'Spanish',
+    ru: 'Russian',
+    it: 'Italian',
+    pt: 'Portuguese',
+    ms: 'Malay',
+    id: 'Indonesian',
+    ar: 'Arabic',
+    hi: 'Hindi',
 };
 
 const EXTENSION_LANGUAGES = {

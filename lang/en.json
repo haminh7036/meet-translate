@@ -3,7 +3,19 @@
         "vi": "Vietnamese",
         "en": "English",
         "zh": "Chinese",
-        "ja": "Japanese"
+        "ja": "Japanese",
+        "ko": "Korean",
+        "th": "Thai",
+        "fr": "French",
+        "de": "German",
+        "es": "Spanish",
+        "ru": "Russian",
+        "it": "Italian",
+        "pt": "Portuguese",
+        "ms": "Malay",
+        "id": "Indonesian",
+        "ar": "Arabic",
+        "hi": "Hindi"
     },
     "ui": {
         "save": "Save",
