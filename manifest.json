@@ -20,7 +20,7 @@
         "*://meet.google.com/*"
       ],
       "js": [
-        "src/content.ts"
+        "src/content/index.ts"
       ],
       "run_at": "document_start"
     }

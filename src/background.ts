@@ -1,4 +1,5 @@
 import { LANGUAGES, PROMPT, TEMPERATURE, GEMINI_MODEL } from './constants'
+import { logger } from './content/logger'
 
 const GEMINI_API_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models'
 
@@ -91,7 +92,7 @@ async function translateWithRetry(
       return result
     } catch (error) {
       lastError = error as Error
-      console.error(`[Meet Translate] Translation attempt ${attempt + 1} failed:`, (error as Error).message)
+      logger.error(`Translation attempt ${attempt + 1} failed:`, (error as Error).message)
 
       if (attempt < maxRetries) {
         await new Promise((resolve) => setTimeout(resolve, 1000))
@@ -99,7 +100,7 @@ async function translateWithRetry(
     }
   }
 
-  console.error('[Meet Translate] Translation failed after retries:', lastError?.message)
+  logger.error('Translation failed after retries:', lastError?.message)
   return null
 }
 
@@ -109,11 +110,11 @@ chrome.runtime.onMessage.addListener(
     _sender: chrome.runtime.MessageSender,
     sendResponse: (response: TranslationResponse) => void
   ): boolean => {
-    console.log('[Meet Translate] Background received message:', message.type)
+    logger.log('Background received message:', message.type)
 
     if (message.type !== 'TRANSLATE') return false
 
-    console.log('[Meet Translate] Starting translation for', message.sourceLang, '->', message.targetLang)
+    logger.log('Starting translation for', message.sourceLang, '->', message.targetLang)
 
     translateWithRetry(
       message.text as string,
@@ -122,7 +123,7 @@ chrome.runtime.onMessage.addListener(
       message.apiKey as string
     )
       .then((translatedText) => {
-        console.log('[Meet Translate] Translation result:', translatedText ? 'success' : 'failed')
+        logger.log('Translation result:', translatedText ? 'success' : 'failed')
         if (translatedText) {
           sendResponse({ success: true, translatedText })
         } else {
@@ -130,7 +131,7 @@ chrome.runtime.onMessage.addListener(
         }
       })
       .catch((error: Error) => {
-        console.error('[Meet Translate] Translation error:', error)
+        logger.error('Translation error:', error)
         sendResponse({ success: false, error: error.message })
       })
 
