@@ -1,0 +1,34 @@
+{
+  "name": "meet-translate",
+  "version": "1.0.0",
+  "description": "Real-time translation for Google Meet live captions. Instantly translate spoken content to your preferred language as it appears on screen.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite build --watch --mode development",
+    "build": "vite build",
+    "build:watch": "vite build --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/haminh7036/meet-translate.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/haminh7036/meet-translate/issues"
+  },
+  "homepage": "https://github.com/haminh7036/meet-translate#readme",
+  "dependencies": {
+    "vue": "^3.5.32"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.2.2",
+    "@types/chrome": "^0.1.39",
+    "@vitejs/plugin-vue": "^6.0.5",
+    "tailwindcss": "^4.2.2",
+    "typescript": "^6.0.2",
+    "vite": "^8.0.3",
+    "vite-plugin-web-extension": "^4.5.0"
+  }
+}

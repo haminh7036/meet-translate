@@ -1,60 +1,71 @@
 # AGENTS.md — Meet AI Translator Chrome Extension
 
 ## Project Overview
-Vanilla **Chrome Extension (Manifest V3)** that translates Google Meet live captions in real-time using the Gemini API. **No build step, no package manager, no bundler.** Plain HTML/CSS/JS only.
+Chrome Extension (Manifest V3) built with **Vite + Vue 3 + TypeScript + TailwindCSS v4** that translates Google Meet live captions in real-time using the Gemini API.
 
-## Build / Lint / Test
+## Build / Dev / Test
 
-- **No build step** — load the extension directly in Chrome via `chrome://extensions` → "Load unpacked" → select project root.
-- **No linter** — follow conventions below manually.
-- **No test framework** — verify by loading the extension in Chrome and opening a Google Meet call with captions enabled.
-- **Manual testing checklist**:
-  1. Set a valid Gemini API key in the popup
-  2. Enable captions in Google Meet
-  3. Confirm the translation panel appears and shows translated text
-  4. Check Chrome DevTools console (`[Meet Translate]` prefixed logs) for errors
+```bash
+npm run build        # Production build → dist/
+npm run dev          # Watch mode for development
+```
+
+Load the extension in Chrome via `chrome://extensions` → "Load unpacked" → select `dist/` folder.
+
+**Manual testing checklist**:
+1. Run `npm run build`
+2. Load `dist/` as unpacked extension in Chrome
+3. Set a valid Gemini API key in the popup
+4. Enable captions in Google Meet
+5. Confirm the translation panel appears and shows translated text
+6. Check Chrome DevTools console (`[Meet Translate]` prefixed logs) for errors
 
 ## File Structure
 
 ```
-manifest.json       — Extension config (Manifest V3)
-constants.js        — Shared constants (languages, selectors, storage keys, prompts)
-background.js       — Service worker: handles Gemini API calls
-content.js          — Content script: detects captions, manages translation panel
-popup.html/css/js   — Extension settings popup
-lang/*.json         — i18n translation files for the popup UI
+manifest.json              — Extension config (Manifest V3, source for vite-plugin-web-extension)
+vite.config.ts             — Vite + web-extension plugin config
+tsconfig.json              — TypeScript configuration
+package.json               — Dependencies and scripts
+public/
+  lang/*.json              — i18n translation files (copied to dist/ as public assets)
+src/
+  constants.ts             — Shared constants (languages, selectors, storage keys, prompts)
+  background.ts            — Service worker: handles Gemini API calls
+  content.ts               — Content script: detects captions, manages translation panel
+  popup/
+    index.html             — Popup HTML template
+    main.ts                — Vue app entry point
+    App.vue                — Popup Vue component (TailwindCSS styled)
+    style.css              — TailwindCSS import
 ```
 
 ## Code Style
 
 ### Formatting
-- **Indentation**: 4 spaces (no tabs)
-- **Semicolons**: Always required
+- **Indentation**: 2 spaces (standard for Vue/TS ecosystem)
+- **Semicolons**: Not required (ASI)
 - **Quotes**: Single quotes for strings, backticks for template literals
 - **Line length**: No hard limit, but keep lines reasonable (~100 chars)
-- **Trailing commas**: Not used
 
 ### Naming Conventions
 - **Variables/functions**: `camelCase` (e.g., `translateWithRetry`, `captionContainer`)
 - **Constants**: `UPPER_SNAKE_CASE` (e.g., `STORAGE_KEYS`, `DEFAULT_LANGUAGE`)
-- **CSS classes**: `kebab-case` (e.g., `.popup-header`, `.form-input`)
+- **CSS classes**: Tailwind utility classes (no custom CSS needed for popup)
 - **DOM IDs**: `kebab-case` with `meet-translate-` prefix (e.g., `meet-translate-panel`)
 - **Log prefix**: Always `[Meet Translate]` for console output
 
 ### Module Pattern
-- Use **IIFE** `(function () { 'use strict'; ... })();` for content scripts and popup scripts
-- Use `importScripts('constants.js')` in the service worker to share constants
-- Load `constants.js` via `<script>` tag in HTML before dependent scripts
-
-### Imports / Dependencies
-- **No external dependencies** — vanilla JS only
-- Shared constants flow: `constants.js` → loaded by all scripts
+- **Vue SFC** for popup UI (`src/popup/App.vue`)
+- **ES modules** for all TypeScript files
+- Shared constants via `import` from `constants.ts`
 - Chrome APIs used: `chrome.runtime`, `chrome.storage`, `chrome.runtime.onMessage`
 
 ### Types
-- No TypeScript — plain JavaScript
+- Full TypeScript with strict mode
+- `@types/chrome` for Chrome Extension API types
 - Validate inputs at boundaries (API responses, storage values, DOM elements)
-- Use optional chaining (`?.`) and nullish coalescing (`||`) for safe access
+- Use optional chaining (`?.`) and nullish coalescing (`??`) for safe access
 
 ### Error Handling
 - Use `try/catch` for async operations (IndexedDB, clipboard, fetch)
@@ -64,40 +75,42 @@ lang/*.json         — i18n translation files for the popup UI
 - Use retry logic for transient failures (see `translateWithRetry`)
 
 ### DOM Manipulation
-- Create elements via `document.createElement`, not `innerHTML` (except SVG icons)
+- **Content script**: `document.createElement` for dynamic panel elements (no Vue in content script)
+- **Popup**: Vue SFC with TailwindCSS classes
 - Inline styles via `element.style.cssText` for dynamically created panel elements
-- Use CSS classes + external stylesheet for popup UI
 - Always check element existence before accessing properties
 
 ### Chrome Extension APIs
-- **Storage**: `chrome.storage.sync.get/set` for user settings
+- **Storage**: `chrome.storage.sync.get/set` for user settings, `chrome.storage.local` for API key
 - **Messaging**: `chrome.runtime.sendMessage` (content → background), `chrome.runtime.onMessage` listener
 - **Service worker**: Use `return true` in `onMessage` to keep `sendResponse` alive for async responses
 - **Permissions**: Only `storage` + host permissions for `meet.google.com` and Gemini API
 
-### CSS Conventions
-- CSS custom properties in `:root` for theming
-- BEM-ish naming: `.block__element--modifier` simplified to `.block-element`
-- Mobile-first not needed (popup is fixed 340px width)
-- Use `var(--color-*)` consistently, never hardcode colors outside `:root`
+### TailwindCSS
+- Uses `@tailwindcss/vite` plugin (TailwindCSS v4)
+- Inline utility classes in Vue templates
+- Custom CSS only for animations (`@keyframes`) in Vue `<style scoped>`
+- Never hardcode colors — use Tailwind's color palette
 
 ### i18n
-- Popup UI uses `data-i18n` and `data-i18n-placeholder` attributes
-- Translation files live in `lang/<code>.json` with nested key structure
+- Popup UI uses Vue `t()` function with nested key structure
+- Translation files live in `public/lang/<code>.json`
 - Extension language is user-selectable (vi, en, zh)
+- Content script panel uses `loadPanelTranslations()` via XHR
 
 ## Key Architectural Patterns
 
 1. **Caption detection**: Polls DOM for Google Meet caption containers using known CSS selectors
-2. **Stability debounce**: Waits 3s for caption text to stabilize before sending for translation
+2. **Stability debounce**: Waits 5s for caption text to stabilize before sending for translation
 3. **Deduplication**: Uses IndexedDB (with in-memory fallback) to avoid re-translating same sentences
-4. **Batching**: Buffers sentences until threshold (5) is reached before sending to background
+4. **Batching**: Buffers sentences until threshold is reached before sending to background
 5. **Translation panel**: Floating draggable UI overlay created dynamically in content script
+6. **Vue popup**: Settings UI built with Vue 3 SFC + TailwindCSS, built by Vite
 
 ## Adding New Features
 
-1. Add new constants to `constants.js`
-2. If API call needed → modify `background.js` message handler
-3. If UI needed → modify `content.js` panel creation or `popup.*` files
+1. Add new constants to `src/constants.ts`
+2. If API call needed → modify `src/background.ts` message handler
+3. If UI needed → modify `src/popup/App.vue` or `src/content.ts` panel creation
 4. If new setting → add to `STORAGE_KEYS`, update popup form, add to `loadSettings`/`saveSettings`
-5. If new language → add to `LANGUAGES`/`EXTENSION_LANGUAGES` in `constants.js` and create `lang/<code>.json`
+5. If new language → add to `LANGUAGES`/`EXTENSION_LANGUAGES` in `src/constants.ts` and create `public/lang/<code>.json`
