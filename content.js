@@ -777,11 +777,16 @@ console.log('[Meet Translate] Content script loaded!');
     async function flushBuffer() {
         if (sentenceBuffer.length === 0 || isTranslating) return;
 
+        isTranslating = true;
+        pendingItemIndex = 'flushing';
+
         const deduplicated = await deduplicateBeforeSend(sentenceBuffer);
         sentenceBuffer = [];
         clearSilenceTimer();
 
         if (deduplicated.length === 0) {
+            isTranslating = false;
+            pendingItemIndex = null;
             updateStatus(t('panel.status_deduped'));
             return;
         }
@@ -791,7 +796,6 @@ console.log('[Meet Translate] Content script loaded!');
 
         addPendingItemToPanel(textToTranslate);
 
-        isTranslating = true;
         updateStatus(t('panel.status_translating'));
         updatePendingItemStatus(t('panel.status_translating'));
 
@@ -873,7 +877,7 @@ console.log('[Meet Translate] Content script loaded!');
                 console.log(`[Meet Translate] Buffer (${currentSpeaker}): ${sentenceBuffer.length} sentences`);
                 resetSilenceTimer();
 
-                if (pendingItemIndex !== null) {
+                if (pendingItemIndex !== null && pendingItemIndex !== 'flushing') {
                     const item = document.querySelector(`.translation-item[data-index="${pendingItemIndex}"]`);
                     if (item) {
                         const originalEl = item.querySelector('.pending-original');
@@ -887,10 +891,6 @@ console.log('[Meet Translate] Content script loaded!');
 
         if (sentenceBuffer.length > 0 && !silenceTimer) {
             resetSilenceTimer();
-        }
-
-        if (sentenceBuffer.length > 0 && pendingItemIndex === null && !isTranslating) {
-            addPendingItemToPanel(sentenceBuffer.join(' '));
         }
     }
 
