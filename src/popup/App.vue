@@ -10,14 +10,14 @@
     class="w-[340px] bg-white text-neutral-900 font-[Inter] text-sm antialiased"
   >
     <header class="flex items-center gap-3 px-4 pt-4 pb-3 border-b border-neutral-200">
-      <div class="w-10 h-10 rounded-[10px] bg-neutral-900 text-white flex items-center justify-center flex-shrink-0">
+      <div class="w-10 h-10 rounded-[10px] bg-neutral-900 text-white flex items-center justify-center shrink-0">
         <Globe :size="20" />
       </div>
       <div class="flex-1 min-w-0">
         <h1 class="text-[15px] font-bold leading-tight text-neutral-900">
           Meet AI Translator
         </h1>
-        <p class="text-xs text-neutral-500 leading-tight mt-[1px]">
+        <p class="text-xs text-neutral-500 leading-tight mt-px">
           {{ t('ui.subtitle') }}
         </p>
       </div>
@@ -27,7 +27,7 @@
       <section class="bg-neutral-100 rounded-[10px] p-3 flex flex-col gap-2.5">
         <div class="flex items-center gap-1.5">
           <Lock
-            class="text-neutral-500 flex-shrink-0"
+            class="text-neutral-500 shrink-0"
             :size="16"
           />
           <span class="text-[11px] font-semibold uppercase tracking-wider text-neutral-500">{{ t('ui.section_auth') }}</span>
@@ -67,7 +67,7 @@
       <section class="bg-neutral-100 rounded-[10px] p-3 flex flex-col gap-2.5">
         <div class="flex items-center gap-1.5">
           <Languages
-            class="text-neutral-500 flex-shrink-0"
+            class="text-neutral-500 shrink-0"
             :size="16"
           />
           <span class="text-[11px] font-semibold uppercase tracking-wider text-neutral-500">{{ t('ui.section_lang') }}</span>
@@ -155,14 +155,14 @@
       <section class="bg-neutral-100 rounded-[10px] p-3 flex flex-col gap-2.5">
         <div class="flex items-center gap-1.5">
           <Bell
-            class="text-neutral-500 flex-shrink-0"
+            class="text-neutral-500 shrink-0"
             :size="16"
           />
           <span class="text-[11px] font-semibold uppercase tracking-wider text-neutral-500">{{ t('ui.section_status') }}</span>
         </div>
         <div class="flex items-center gap-2.5">
           <span class="flex-1 text-sm font-medium text-neutral-900">{{ t('ui.translation_active') }}</span>
-          <label class="relative inline-block w-10 h-[22px] flex-shrink-0">
+          <label class="relative inline-block w-10 h-[22px] shrink-0">
             <input
               v-model="isActive"
               type="checkbox"
@@ -174,7 +174,7 @@
             >
               <span
                 class="absolute h-4 w-4 bottom-[3px] left-[3px] bg-white rounded-full shadow-sm transition-all duration-200"
-                :class="isActive ? 'translate-x-[18px] !bg-green-800' : ''"
+                :class="isActive ? 'translate-x-[18px] bg-green-800!' : ''"
               />
             </span>
           </label>
