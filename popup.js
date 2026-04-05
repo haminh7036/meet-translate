@@ -118,26 +118,31 @@
     }
 
     function loadSettings() {
-        chrome.storage.sync.get(
-            [
-                STORAGE_KEYS.API_KEY,
-                STORAGE_KEYS.SOURCE_LANGUAGE,
-                STORAGE_KEYS.TARGET_LANGUAGE,
-                STORAGE_KEYS.EXTENSION_LANGUAGE,
-                STORAGE_KEYS.IS_ACTIVE,
-            ],
-            (items) => {
-                elements.apiKey.value = items[STORAGE_KEYS.API_KEY] || '';
-                elements.sourceLang.value = items[STORAGE_KEYS.SOURCE_LANGUAGE] || DEFAULT_SOURCE_LANGUAGE;
-                elements.targetLang.value = items[STORAGE_KEYS.TARGET_LANGUAGE] || DEFAULT_LANGUAGE;
+        chrome.storage.local.get(
+            [STORAGE_KEYS.API_KEY],
+            (localItems) => {
+                chrome.storage.sync.get(
+                    [
+                        STORAGE_KEYS.SOURCE_LANGUAGE,
+                        STORAGE_KEYS.TARGET_LANGUAGE,
+                        STORAGE_KEYS.EXTENSION_LANGUAGE,
+                        STORAGE_KEYS.IS_ACTIVE,
+                    ],
+                    (syncItems) => {
+                        const items = { ...localItems, ...syncItems };
+                        elements.apiKey.value = items[STORAGE_KEYS.API_KEY] || '';
+                        elements.sourceLang.value = items[STORAGE_KEYS.SOURCE_LANGUAGE] || DEFAULT_SOURCE_LANGUAGE;
+                        elements.targetLang.value = items[STORAGE_KEYS.TARGET_LANGUAGE] || DEFAULT_LANGUAGE;
 
-                currentExtLang = items[STORAGE_KEYS.EXTENSION_LANGUAGE] || DEFAULT_LANGUAGE;
-                elements.extLang.value = currentExtLang;
+                        currentExtLang = items[STORAGE_KEYS.EXTENSION_LANGUAGE] || DEFAULT_LANGUAGE;
+                        elements.extLang.value = currentExtLang;
 
-                elements.isActive.checked = items[STORAGE_KEYS.IS_ACTIVE] !== false;
+                        elements.isActive.checked = items[STORAGE_KEYS.IS_ACTIVE] !== false;
 
-                updateStatusText();
-                loadTranslations(currentExtLang);
+                        updateStatusText();
+                        loadTranslations(currentExtLang);
+                    }
+                );
             }
         );
     }
@@ -150,24 +155,34 @@
             return;
         }
 
-        const settings = {
+        const localSettings = {
             [STORAGE_KEYS.API_KEY]: apiKey,
+        };
+
+        const syncSettings = {
             [STORAGE_KEYS.SOURCE_LANGUAGE]: elements.sourceLang.value,
             [STORAGE_KEYS.TARGET_LANGUAGE]: elements.targetLang.value,
             [STORAGE_KEYS.EXTENSION_LANGUAGE]: elements.extLang.value,
             [STORAGE_KEYS.IS_ACTIVE]: elements.isActive.checked,
         };
 
-        chrome.storage.sync.set(settings, () => {
+        chrome.storage.local.set(localSettings, () => {
             if (chrome.runtime.lastError) {
-                showMessage('error', translations.ui?.error_save || 'Failed to save settings');
+                showMessage('error', translations.ui?.error_save || 'Failed to save API Key');
                 return;
             }
 
-            showMessage('success', translations.ui?.save_success || 'Settings saved successfully');
-            setTimeout(() => {
-                window.close();
-            }, 1000);
+            chrome.storage.sync.set(syncSettings, () => {
+                if (chrome.runtime.lastError) {
+                    showMessage('error', translations.ui?.error_save || 'Failed to save settings');
+                    return;
+                }
+
+                showMessage('success', translations.ui?.save_success || 'Settings saved successfully');
+                setTimeout(() => {
+                    window.close();
+                }, 1000);
+            });
         });
     }
 

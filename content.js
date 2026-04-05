@@ -933,54 +933,59 @@ console.log('[Meet Translate] Content script loaded!');
     }
 
     function loadSettings() {
-        chrome.storage.sync.get(
-            [
-                STORAGE_KEYS.SOURCE_LANGUAGE,
-                STORAGE_KEYS.TARGET_LANGUAGE,
-                STORAGE_KEYS.IS_ACTIVE,
-                STORAGE_KEYS.API_KEY,
-                STORAGE_KEYS.EXTENSION_LANGUAGE,
-            ],
-            (items) => {
-                sourceLanguage = items[STORAGE_KEYS.SOURCE_LANGUAGE] || DEFAULT_SOURCE_LANGUAGE;
-                targetLanguage = items[STORAGE_KEYS.TARGET_LANGUAGE] || DEFAULT_LANGUAGE;
-                isActive = items[STORAGE_KEYS.IS_ACTIVE] !== false;
-                apiKey = items[STORAGE_KEYS.API_KEY] || '';
-                const extLang = items[STORAGE_KEYS.EXTENSION_LANGUAGE] || DEFAULT_LANGUAGE;
+        chrome.storage.local.get(
+            [STORAGE_KEYS.API_KEY],
+            (localItems) => {
+                chrome.storage.sync.get(
+                    [
+                        STORAGE_KEYS.SOURCE_LANGUAGE,
+                        STORAGE_KEYS.TARGET_LANGUAGE,
+                        STORAGE_KEYS.IS_ACTIVE,
+                        STORAGE_KEYS.EXTENSION_LANGUAGE,
+                    ],
+                    (syncItems) => {
+                        const items = { ...localItems, ...syncItems };
+                        sourceLanguage = items[STORAGE_KEYS.SOURCE_LANGUAGE] || DEFAULT_SOURCE_LANGUAGE;
+                        targetLanguage = items[STORAGE_KEYS.TARGET_LANGUAGE] || DEFAULT_LANGUAGE;
+                        isActive = items[STORAGE_KEYS.IS_ACTIVE] !== false;
+                        apiKey = items[STORAGE_KEYS.API_KEY] || '';
+                        const extLang = items[STORAGE_KEYS.EXTENSION_LANGUAGE] || DEFAULT_LANGUAGE;
 
-                console.log('[Meet Translate] Settings loaded:', {
-                    sourceLanguage,
-                    targetLanguage,
-                    isActive,
-                    hasApiKey: !!apiKey,
-                });
+                        console.log('[Meet Translate] Settings loaded:', {
+                            sourceLanguage,
+                            targetLanguage,
+                            isActive,
+                            hasApiKey: !!apiKey,
+                        });
 
-                loadPanelTranslations(extLang);
-                waitForDOMReady();
+                        loadPanelTranslations(extLang);
+                        waitForDOMReady();
+                    }
+                );
             }
         );
     }
 
     chrome.storage.onChanged.addListener((changes, areaName) => {
-        if (areaName !== 'sync') return;
-
-        if (changes[STORAGE_KEYS.SOURCE_LANGUAGE]) {
-            sourceLanguage = changes[STORAGE_KEYS.SOURCE_LANGUAGE].newValue;
-        }
-        if (changes[STORAGE_KEYS.TARGET_LANGUAGE]) {
-            targetLanguage = changes[STORAGE_KEYS.TARGET_LANGUAGE].newValue;
-        }
-        if (changes[STORAGE_KEYS.IS_ACTIVE]) {
-            isActive = changes[STORAGE_KEYS.IS_ACTIVE].newValue;
-            if (!isActive) {
-                updateStatus(t('panel.status_off'));
+        if (areaName === 'sync') {
+            if (changes[STORAGE_KEYS.SOURCE_LANGUAGE]) {
+                sourceLanguage = changes[STORAGE_KEYS.SOURCE_LANGUAGE].newValue;
+            }
+            if (changes[STORAGE_KEYS.TARGET_LANGUAGE]) {
+                targetLanguage = changes[STORAGE_KEYS.TARGET_LANGUAGE].newValue;
+            }
+            if (changes[STORAGE_KEYS.IS_ACTIVE]) {
+                isActive = changes[STORAGE_KEYS.IS_ACTIVE].newValue;
+                if (!isActive) {
+                    updateStatus(t('panel.status_off'));
+                }
+            }
+            if (changes[STORAGE_KEYS.EXTENSION_LANGUAGE]) {
+                loadPanelTranslations(changes[STORAGE_KEYS.EXTENSION_LANGUAGE].newValue);
             }
         }
-        if (changes[STORAGE_KEYS.API_KEY]) {
+        if (areaName === 'local' && changes[STORAGE_KEYS.API_KEY]) {
             apiKey = changes[STORAGE_KEYS.API_KEY].newValue;
-        }
-        if (changes[STORAGE_KEYS.EXTENSION_LANGUAGE]) {
-            loadPanelTranslations(changes[STORAGE_KEYS.EXTENSION_LANGUAGE].newValue);
         }
     });
 
