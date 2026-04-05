@@ -11,8 +11,9 @@ console.log('[Meet Translate] Content script loaded!');
     let retryTimer = null;
     const RETRY_INTERVAL_MS = 3000;
     const POLL_INTERVAL_MS = 500;
-    const STABLE_DEBOUNCE_MS = 3000;
-    const SILENCE_TIMEOUT_MS = 10000;
+    const STABLE_DEBOUNCE_MS = 5000;
+    const POST_EXTRACT_COOLDOWN_MS = 3000;
+    const SILENCE_TIMEOUT_MS = 12000;
     const MAX_HISTORY = 500;
     const blockState = new Map();
     let panelContainer = null;
@@ -752,13 +753,19 @@ console.log('[Meet Translate] Content script loaded!');
         if (currentText === state.pendingText) {
             const timeSinceChange = Date.now() - state.lastChangeTime;
             if (timeSinceChange >= STABLE_DEBOUNCE_MS && currentText !== state.stableText) {
+                const cooldownEnd = Date.now() + POST_EXTRACT_COOLDOWN_MS;
                 console.log(`[Meet Translate] Block ${blockKey} STABLE: "${currentText.substring(0, 80)}"`);
                 const newSentences = extractNewSentences(currentText, state.stableText);
                 state.stableText = currentText;
                 state.pendingText = '';
+                state.cooldownUntil = cooldownEnd;
                 console.log(`[Meet Translate] New sentences:`, newSentences);
                 return newSentences;
             }
+            return [];
+        }
+
+        if (state.cooldownUntil && Date.now() < state.cooldownUntil) {
             return [];
         }
 
