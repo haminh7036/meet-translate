@@ -19,6 +19,7 @@ export default defineConfig({
     tailwindcss(),
     webExtension({
       manifest: generateManifest,
+      disableAutoLaunch: true,
     }),
   ],
   resolve: {
