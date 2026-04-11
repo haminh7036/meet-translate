@@ -162,14 +162,15 @@
         </div>
         <div class="flex items-center gap-2.5">
           <span class="flex-1 text-sm font-medium text-neutral-900">{{ t('ui.translation_active') }}</span>
-          <label class="relative inline-block w-10 h-[22px] shrink-0">
+          <label class="relative inline-block w-10 h-[22px] shrink-0" :class="isDisabledActive ? 'cursor-not-allowed' : 'cursor-pointer'">
             <input
               v-model="isActive"
+              :disabled="isDisabledActive"
               type="checkbox"
               class="opacity-0 w-0 h-0"
             >
             <span
-              class="absolute cursor-pointer top-0 left-0 right-0 bottom-0 rounded-[22px] transition-all duration-200"
+              class="absolute top-0 left-0 right-0 bottom-0 rounded-[22px] transition-all duration-200"
               :class="isActive ? 'bg-green-100' : 'bg-neutral-200'"
             >
               <span
@@ -214,7 +215,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { LANGUAGES, EXTENSION_LANGUAGES, DEFAULT_LANGUAGE, DEFAULT_SOURCE_LANGUAGE, STORAGE_KEYS } from '../constants'
 import { Globe, Lock, Eye, EyeOff, Languages, Bell, Save, X, ChevronDown } from '@lucide/vue'
 
@@ -241,6 +242,9 @@ const isLoading = ref(true)
 
 const statusText = computed(() => {
   return isActive.value ? (t('ui.on') || 'ON') : (t('ui.off') || 'OFF')
+})
+const isDisabledActive = computed(() => {
+  return apiKey.value.trim().length === 0
 })
 
 function t(key: string): string {
@@ -353,6 +357,12 @@ function saveSettings(): void {
 
 onMounted(() => {
   loadSettings()
+})
+
+watch(() => apiKey.value, () => {
+  if (apiKey.value.trim().length === 0) {
+    isActive.value = false
+  }
 })
 </script>
 
