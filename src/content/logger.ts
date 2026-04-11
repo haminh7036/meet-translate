@@ -1,4 +1,5 @@
-const isDev = typeof chrome !== 'undefined' && chrome.runtime?.id !== undefined
+const ENV = import.meta.env.VITE_ENV || 'local'
+const isDev = ENV === 'local'
 
 export const logger = {
   log(...args: unknown[]): void {
