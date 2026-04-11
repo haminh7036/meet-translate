@@ -32,9 +32,10 @@ import { loadSettings, onSettingsChange, Settings } from './settings'
 
 const RETRY_INTERVAL_MS = 3000
 const POLL_INTERVAL_MS = 500
-const STABLE_DEBOUNCE_MS = 5000
-const POST_EXTRACT_COOLDOWN_MS = 3000
+const STABLE_DEBOUNCE_MS = 1500
+const POST_EXTRACT_COOLDOWN_MS = 500
 const SILENCE_TIMEOUT_MS = 12000
+const DOM_READY_TIMEOUT_MS = 15000
 
 interface BlockState {
   stableText: string
@@ -153,6 +154,8 @@ async function checkBlockStability(
   const currentText = textEl.textContent?.trim() || ''
   if (!currentText) return []
 
+  if (state.cooldownUntil && Date.now() < state.cooldownUntil) return []
+
   if (currentText === state.pendingText) {
     const timeSinceChange = Date.now() - state.lastChangeTime
     if (timeSinceChange >= STABLE_DEBOUNCE_MS && currentText !== state.stableText) {
@@ -168,10 +171,25 @@ async function checkBlockStability(
     return []
   }
 
-  if (state.cooldownUntil && Date.now() < state.cooldownUntil) return []
+  // Text changed — extract diff immediately instead of waiting for stability
+  const newSentences: string[] = []
+  if (state.stableText && currentText.length > state.stableText.length) {
+    const appended = currentText.slice(state.stableText.length).trim()
+    if (appended && appended.length > 2) {
+      newSentences.push(...splitIntoSentences(appended))
+    }
+  }
 
   state.pendingText = currentText
   state.lastChangeTime = Date.now()
+
+  if (newSentences.length > 0) {
+    state.stableText = currentText
+    state.cooldownUntil = Date.now() + POST_EXTRACT_COOLDOWN_MS
+    logger.log(`Block ${blockKey} INCREMENTAL:`, newSentences)
+    return newSentences
+  }
+
   return []
 }
 
@@ -298,26 +316,47 @@ function stopPolling(): void {
   clearSilenceTimer()
 }
 
-function initCaptionDetection(): void {
-  logger.log('initCaptionDetection called')
-  const found = detectCaptionContainer()
-  logger.log('detectCaptionContainer returned:', found)
-  if (found) {
-    logger.log('Container found, starting polling')
-    startPolling()
-  } else {
-    logger.log('Container not found, will retry')
-  }
-}
-
 function waitForDOMReady(): void {
+  const startPollingIfReady = () => {
+    logger.log('initCaptionDetection called')
+    const found = detectCaptionContainer()
+    logger.log('detectCaptionContainer returned:', found)
+    if (found) {
+      logger.log('Container found, starting polling')
+      startPolling()
+    } else {
+      logger.log('Container not found, will retry')
+    }
+  }
+
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
-      setTimeout(initCaptionDetection, 2000)
+      setTimeout(startPollingIfReady, 2000)
     })
   } else {
-    setTimeout(initCaptionDetection, 2000)
+    setTimeout(startPollingIfReady, 2000)
   }
+
+  // Fallback: retry detecting caption containers if they appear later
+  const maxRetries = Math.floor(DOM_READY_TIMEOUT_MS / RETRY_INTERVAL_MS)
+  let retryCount = 0
+  const retryDetection = setInterval(() => {
+    retryCount++
+    if (getCaptionContainer()) {
+      clearInterval(retryDetection)
+      return
+    }
+    logger.log('Retrying caption detection...', retryCount, '/', maxRetries)
+    const found = detectCaptionContainer()
+    if (found && !pollingTimer) {
+      clearInterval(retryDetection)
+      startPolling()
+    }
+    if (retryCount >= maxRetries) {
+      clearInterval(retryDetection)
+      logger.warn('Timed out waiting for caption container after', DOM_READY_TIMEOUT_MS / 1000, 's')
+    }
+  }, RETRY_INTERVAL_MS)
 }
 
 function applySettings(s: Settings): void {
