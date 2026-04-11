@@ -249,7 +249,7 @@ async function flushBuffer(): Promise<void> {
       const resp = response as Record<string, unknown> | undefined
       if (resp && resp.success && resp.translatedText) {
         finalizePendingItem(resp.translatedText as string, panelState)
-        updateStatus(t('panel.status_translated_count', { count: String(sentenceCount) }))
+        updateStatus(t('panel.status_translated'))
         deduplicated.forEach((s) => markSentenceProcessed(s.normalized))
       } else {
         logger.warn('Translation failed:', resp?.error)

@@ -1,4 +1,5 @@
 import { ARIA_LABELS, CAPTION_SELECTORS } from '../constants'
+import { logger } from './logger'
 
 let captionContainer: Element | null = null
 
@@ -21,7 +22,7 @@ export function isValidCaptionContainer(container: Element): boolean {
   const hasTextElements = container.querySelectorAll(CAPTION_SELECTORS.TEXT).length > 0
   const ariaLabel = container.getAttribute('aria-label') || ''
   if (!hasCaptionBlocks && !hasTextElements) {
-    console.log('[Meet Translate] Invalid container, aria-label:', ariaLabel, 'blocks:', hasCaptionBlocks, 'text:', hasTextElements)
+    logger.warn('Invalid container, aria-label:', ariaLabel, 'blocks:', hasCaptionBlocks, 'text:', hasTextElements)
   }
   return hasCaptionBlocks || hasTextElements
 }

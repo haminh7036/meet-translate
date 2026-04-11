@@ -15,7 +15,7 @@ const PANEL_TEXT_DEFAULTS: PanelTextDefaults = {
   'panel.copy_all_success': 'Đã copy tất cả',
   'panel.status_collecting': 'Đang chờ hoàn chỉnh',
   'panel.status_translating': 'Đang dịch',
-  'panel.status_translated_count': 'Đã dịch {count} câu',
+  'panel.status_translated': 'Đã dịch',
   'panel.status_deduped': 'Đã lọc trùng lặp',
   'panel.status_error_connection': 'Lỗi kết nối',
   'panel.status_error_translation': 'Dịch thất bại',
