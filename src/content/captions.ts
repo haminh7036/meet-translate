@@ -19,6 +19,10 @@ export function isValidCaptionContainer(container: Element): boolean {
   if (!container) return false
   const hasCaptionBlocks = container.querySelectorAll(CAPTION_SELECTORS.BLOCK).length > 0
   const hasTextElements = container.querySelectorAll(CAPTION_SELECTORS.TEXT).length > 0
+  const ariaLabel = container.getAttribute('aria-label') || ''
+  if (!hasCaptionBlocks && !hasTextElements) {
+    console.log('[Meet Translate] Invalid container, aria-label:', ariaLabel, 'blocks:', hasCaptionBlocks, 'text:', hasTextElements)
+  }
   return hasCaptionBlocks || hasTextElements
 }
 

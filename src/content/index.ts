@@ -1,4 +1,4 @@
-import { DEFAULT_LANGUAGE, DEFAULT_SOURCE_LANGUAGE } from '../constants'
+import { DEFAULT_LANGUAGE, DEFAULT_SOURCE_LANGUAGE, CAPTION_SELECTORS } from '../constants'
 import { logger } from './logger'
 import {
   getCaptionContainer,
@@ -263,7 +263,8 @@ async function flushBuffer(): Promise<void> {
 async function pollCaptions(): Promise<void> {
   if (!settings.isActive || !getCaptionContainer()) return
 
-  const textEls = getCaptionContainer()!.querySelectorAll('[role="text"]')
+  const textEls = getCaptionContainer()!.querySelectorAll(CAPTION_SELECTORS.TEXT)
+  logger.log('Poll captions: found', textEls.length, 'text elements')
   if (textEls.length === 0) return
 
   for (const textEl of textEls) {
