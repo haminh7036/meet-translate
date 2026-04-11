@@ -32,12 +32,19 @@ public/
 src/
   constants.ts             — Shared constants (languages, selectors, storage keys, prompts)
   background.ts            — Service worker: handles Gemini API calls
-  content.ts               — Content script: detects captions, manages translation panel
   popup/
     index.html             — Popup HTML template
     main.ts                — Vue app entry point
     App.vue                — Popup Vue component (TailwindCSS styled)
     style.css              — TailwindCSS import
+  content/
+    index.ts               — Content script entry, connects all modules
+    captions.ts            — Google Meet caption detection via DOM polling
+    sentences.ts           — Sentence extraction, deduplication, batching
+    panel.ts               — Floating draggable translation panel UI
+    i18n.ts                — Panel translations loader
+    settings.ts            — User settings via chrome.storage
+    logger.ts              — Console logging with prefix
 ```
 
 ## Code Style
@@ -111,6 +118,6 @@ src/
 
 1. Add new constants to `src/constants.ts`
 2. If API call needed → modify `src/background.ts` message handler
-3. If UI needed → modify `src/popup/App.vue` or `src/content.ts` panel creation
-4. If new setting → add to `STORAGE_KEYS`, update popup form, add to `loadSettings`/`saveSettings`
+3. If UI needed → modify `src/popup/App.vue` or `src/content/panel.ts` panel creation
+4. If new setting → add to `STORAGE_KEYS`, update popup form, add to `loadSettings`/`saveSettings` in `src/content/settings.ts`
 5. If new language → add to `LANGUAGES`/`EXTENSION_LANGUAGES` in `src/constants.ts` and create `public/lang/<code>.json`
