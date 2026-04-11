@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Meet AI Translator",
   "description": "Dịch phụ đề Google Meet theo thời gian thực bằng Gemini AI",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "permissions": [
     "storage"
   ],
