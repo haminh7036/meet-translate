@@ -11,7 +11,7 @@
     "https://generativelanguage.googleapis.com/*"
   ],
   "action": {
-    "default_popup": "popup.html",
+    "default_popup": "src/popup/index.html",
     "default_title": "Meet AI Translator — Cài đặt"
   },
   "content_scripts": [
@@ -20,14 +20,14 @@
         "*://meet.google.com/*"
       ],
       "js": [
-        "constants.js",
-        "content.js"
+        "src/content/index.ts"
       ],
       "run_at": "document_start"
     }
   ],
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "src/background.ts",
+    "type": "module"
   },
   "web_accessible_resources": [
     {
