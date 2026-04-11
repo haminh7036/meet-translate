@@ -27,9 +27,6 @@ jobs:
       - name: Create ZIP
         run: cd dist && zip -r ../meet-translate.zip .
 
-      - name: Create CRX
-        run: cd dist && zip -r ../meet-translate.crx .
-
       - name: Get version
         id: version
         run: echo "VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
@@ -41,6 +38,5 @@ jobs:
           generate_release_notes: true
           files: |
             meet-translate.zip
-            meet-translate.crx
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
