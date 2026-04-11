@@ -1,6 +1,6 @@
 {
   "name": "meet-translate",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Real-time translation for Google Meet live captions. Instantly translate spoken content to your preferred language as it appears on screen.",
   "type": "module",
   "scripts": {
