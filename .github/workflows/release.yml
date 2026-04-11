@@ -1,0 +1,42 @@
+name: Build & Release
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'package.json'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - run: npm ci
+
+      - run: npm run build
+
+      - name: Create CRX
+        run: cd dist && zip -r ../meet-translate.crx .
+
+      - name: Get version
+        id: version
+        run: echo "VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.VERSION }}
+          generate_release_notes: true
+          files: |
+            meet-translate.crx
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
