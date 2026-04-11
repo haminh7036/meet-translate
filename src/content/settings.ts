@@ -32,7 +32,7 @@ export function loadSettings(callback: (settings: Settings) => void): void {
         callback({
           sourceLanguage: (items[STORAGE_KEYS.SOURCE_LANGUAGE] as string) || DEFAULT_SOURCE_LANGUAGE,
           targetLanguage: (items[STORAGE_KEYS.TARGET_LANGUAGE] as string) || DEFAULT_LANGUAGE,
-          isActive: items[STORAGE_KEYS.IS_ACTIVE] !== false,
+          isActive: (items[STORAGE_KEYS.IS_ACTIVE] as boolean) !== false && !!items[STORAGE_KEYS.API_KEY],
           apiKey: (items[STORAGE_KEYS.API_KEY] as string) || '',
           extLanguage: (items[STORAGE_KEYS.EXTENSION_LANGUAGE] as string) || DEFAULT_LANGUAGE,
         })

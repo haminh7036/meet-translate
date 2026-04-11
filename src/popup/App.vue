@@ -315,20 +315,20 @@ function loadSettings(): void {
 function saveSettings(): void {
   const trimmedApiKey = apiKey.value.trim()
 
-  if (!trimmedApiKey) {
-    showMessage('error', t('ui.error_api_key') || 'API Key is required')
-    return
+  const localSettings: Record<string, unknown> = {}
+  if (trimmedApiKey) {
+    localSettings[STORAGE_KEYS.API_KEY] = trimmedApiKey
+  } else {
+    localSettings[STORAGE_KEYS.API_KEY] = ''
   }
 
-  const localSettings: Record<string, unknown> = {
-    [STORAGE_KEYS.API_KEY]: trimmedApiKey,
-  }
+  const isEnabled = !!trimmedApiKey && isActive.value
 
   const syncSettings: Record<string, unknown> = {
     [STORAGE_KEYS.SOURCE_LANGUAGE]: sourceLanguage.value,
     [STORAGE_KEYS.TARGET_LANGUAGE]: targetLanguage.value,
     [STORAGE_KEYS.EXTENSION_LANGUAGE]: extLanguage.value,
-    [STORAGE_KEYS.IS_ACTIVE]: isActive.value,
+    [STORAGE_KEYS.IS_ACTIVE]: isEnabled,
   }
 
   chrome.storage.local.set(localSettings, () => {
