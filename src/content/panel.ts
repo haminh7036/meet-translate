@@ -26,6 +26,7 @@ export interface PanelState {
   dragOffsetY: number
   items: TranslationItem[]
   pendingItemIndex: number | null | 'flushing'
+  savedPosition: { top: number; left: number; width: number }
 }
 
 export function createPanelState(): PanelState {
@@ -37,6 +38,7 @@ export function createPanelState(): PanelState {
     dragOffsetY: 0,
     items: [],
     pendingItemIndex: null,
+    savedPosition: { top: 0, left: 0, width: 0 },
   }
 }
 
@@ -184,11 +186,12 @@ function onDrag(e: MouseEvent, state: PanelState): void {
   state.container!.style.top = newY + 'px'
   state.container!.style.right = 'auto'
   state.container!.style.bottom = 'auto'
+  state.container!.style.transition = 'none'
 }
 
 function stopDrag(state: PanelState): void {
   state.isDragging = false
-  state.container!.style.transition = ''
+  state.container!.style.transition = 'none'
   document.removeEventListener('mousemove', (ev) => onDrag(ev, state))
   document.removeEventListener('mouseup', () => stopDrag(state))
 }
@@ -199,18 +202,20 @@ export function toggleMinimize(state: PanelState): void {
   const btn = document.getElementById('meet-translate-minimize')
 
   if (state.isMinimized) {
-    const currentRect = (state.container as HTMLDivElement).getBoundingClientRect()
-    state.container!.style.bottom = 'auto'
-    state.container!.style.right = 'auto'
-    state.container!.style.top = currentRect.top + 'px'
-    state.container!.style.left = currentRect.left + 'px'
     state.container!.style.maxHeight = '44px'
     state.container!.style.transition = 'max-height 0.25s ease, opacity 0.25s ease'
     if (content) content.style.display = 'none'
     if (btn) btn.innerHTML = ICON_MAXIMIZE
+    // Store initial position before minimization
+    const rect = (state.container as HTMLDivElement).getBoundingClientRect()
+    state.savedPosition = {
+      top: rect.top,
+      left: rect.left,
+      width: rect.width,
+    }
   } else {
-    state.container!.style.transition = 'max-height 0.25s ease, opacity 0.25s ease'
     state.container!.style.maxHeight = '450px'
+    state.container!.style.transition = 'max-height 0.25s ease, opacity 0.25s ease'
     if (content) content.style.display = 'flex'
     if (btn) btn.innerHTML = ICON_MINIMIZE
   }
