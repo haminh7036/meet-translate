@@ -9,3 +9,11 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "weekly"
+    groups:
+     patch-dependencies:
+      patterns:
+       - "*"
+      update-types:
+       - "minor"
+       - "patch"
+    target-branch: "master"
