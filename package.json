@@ -22,8 +22,8 @@
   },
   "homepage": "https://github.com/haminh7036/meet-translate#readme",
   "dependencies": {
-    "@lucide/vue": "^1.25.0",
-    "lucide": "^1.25.0",
+    "@lucide/vue": "^1.27.0",
+    "lucide": "^1.27.0",
     "vue": "^3.5.40"
   },
   "devDependencies": {
@@ -31,14 +31,14 @@
     "@tailwindcss/vite": "^4.3.3",
     "@types/chrome": "^0.2.2",
     "@vitejs/plugin-vue": "^6.0.8",
-    "eslint": "^10.7.0",
-    "eslint-plugin-vue": "^10.9.2",
-    "globals": "^17.7.0",
+    "eslint": "^10.8.0",
+    "eslint-plugin-vue": "^10.10.0",
+    "globals": "^17.8.0",
     "tailwindcss": "^4.2.2",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.64.0",
+    "typescript-eslint": "^8.65.0",
     "vite": "^8.1.5",
     "vite-plugin-web-extension": "^4.5.1",
-    "vue-tsc": "^3.3.7"
+    "vue-tsc": "^3.3.8"
   }
 }
